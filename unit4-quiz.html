@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4: Being a Digital Citizen - Smart Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden-section { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans p-4 md:p-8 min-h-screen flex flex-col items-center">
+
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8 mt-4 fade-in" id="main-card">
+        
+        <!-- Header -->
+        <div id="quiz-header" class="bg-indigo-600 p-6 text-white text-center transition-colors duration-500">
+            <h1 class="text-2xl font-bold">Chapter 4: Being a Digital Citizen</h1>
+            <p id="section-subtitle" class="text-indigo-100 mt-1 text-sm font-medium">Part 1: Multiple Choice</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-100 h-2">
+            <div id="progress-bar" class="bg-indigo-400 h-2 transition-all duration-300" style="width: 0%;"></div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="p-6 md:p-10 relative">
+            
+            <div id="question-counter" class="text-sm font-bold text-slate-400 mb-4 tracking-wider uppercase">Question 1 of 10</div>
+            
+            <!-- Question Text -->
+            <h2 id="question-text" class="text-xl font-semibold mb-6 text-slate-800 leading-relaxed"></h2>
+
+            <!-- MCQ Container -->
+            <div id="mcq-container" class="space-y-3 hidden-section"></div>
+
+            <!-- Open Ended Container (Text Area) -->
+            <div id="open-ended-container" class="hidden-section">
+                <textarea id="student-answer" rows="5" class="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow resize-y text-slate-700" placeholder="Type your detailed answer here..."></textarea>
+                <button id="check-answer-btn" class="mt-4 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-colors w-full shadow-sm">Check My Answer</button>
+            </div>
+
+            <!-- Instant Feedback Area -->
+            <div id="feedback-container" class="hidden mt-6 p-5 rounded-xl border fade-in">
+                
+                <!-- MCQ Feedback -->
+                <div id="mcq-feedback" class="hidden-section">
+                    <p id="mcq-title" class="font-bold mb-2 text-lg"></p>
+                    <p id="mcq-rationale" class="text-slate-700"></p>
+                </div>
+
+                <!-- Open Ended Feedback -->
+                <div id="oe-feedback" class="hidden-section">
+                    <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-200/60">
+                        <h3 class="font-bold text-lg text-slate-800">Automated Scoring Result</h3>
+                        <span id="oe-score" class="px-3 py-1 bg-slate-100 font-bold text-lg rounded-lg text-slate-700">0/100</span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Keyword Analysis:</p>
+                        <div id="keyword-badges" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 mt-6">
+                        <p class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">Model Answer</p>
+                        <p id="model-answer" class="text-blue-900 text-sm leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <button id="next-btn" class="mt-6 px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white font-medium rounded-xl transition-colors w-full">Next Question ➔</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Results Screen -->
+    <div id="results-container" class="hidden max-w-4xl w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden text-center p-10 fade-in">
+        <h2 class="text-4xl font-bold text-slate-800 mb-3">Quiz Complete!</h2>
+        <p class="text-slate-500 mb-8 text-lg">Great job working through Chapter 4: Being a Digital Citizen.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
+                <p class="text-indigo-600 font-bold mb-1 uppercase tracking-wide text-sm">MCQ Score</p>
+                <p class="text-4xl font-bold text-indigo-900" id="final-mcq-score">0/10</p>
+            </div>
+            <div class="bg-rose-50 p-6 rounded-2xl border border-rose-100">
+                <p class="text-rose-600 font-bold mb-1 uppercase tracking-wide text-sm">Short Answer Avg</p>
+                <p class="text-4xl font-bold text-rose-900" id="final-sa-score">0%</p>
+            </div>
+            <div class="bg-fuchsia-50 p-6 rounded-2xl border border-fuchsia-100">
+                <p class="text-fuchsia-600 font-bold mb-1 uppercase tracking-wide text-sm">Long Answer Avg</p>
+                <p class="text-4xl font-bold text-fuchsia-900" id="final-la-score">0%</p>
+            </div>
+        </div>
+        
+        <button onclick="location.reload()" class="px-8 py-4 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition-colors shadow-lg">Retake Quiz</button>
+    </div>
+
+    <script>
+        // --- QUIZ DATA ---
+        const mcqData = [
+            { q: "What is the primary function of a 'web crawler'?", opts: ["To design and build new websites", "To scan web pages and collect information for search engine indexes", "To block viruses from downloading to your computer", "To create strong passwords"], ans: 1, reason: "Web crawlers are programs used by search engines (like Google or Bing) that visit websites and collect information to store in massive databases called search indexes." },
+            { q: "Which Boolean operator should you use to exclude a specific term from your search results?", opts: ["AND", "OR", "NOT (or -)", "Truncation (*)"], ans: 2, reason: "The NOT operator (or using a minus sign '-') excludes a specific term from your search. For example, 'pandemic - COVID' filters out pages mentioning COVID." },
+            { q: "What does the CRAAP test evaluate?", opts: ["The credibility, currency, and accuracy of online information", "The speed of your internet connection", "The amount of metadata collected by a website", "The strength of your passwords"], ans: 0, reason: "The CRAAP test is a checklist used to evaluate the credibility of information, checking for Currency, Relevance, Authority, Accuracy, and Purpose." },
+            { q: "Which of the following is considered a 'red flag' that indicates an online source might be untrustworthy?", opts: ["The website ends in .edu or .gov", "The article provides references and supporting facts", "The page features clickbait headlines and lacks an author's name", "The URL begins with https://"], ans: 2, reason: "Red flags for untrustworthy sources include clickbait headlines, no author or organization listed, excessive ads, and lack of supporting facts." },
+            { q: "What is a major advantage of using cloud technology in the modern workplace?", opts: ["It completely removes the need for firewalls", "It allows remote teams to collaborate on documents in real-time from anywhere", "It prevents all employees from accessing the internet", "It ensures that computer hardware never breaks down"], ans: 1, reason: "Cloud technology allows teams to access data securely from anywhere, enabling remote work, real-time communication, and collaborative editing on shared documents." },
+            { q: "Which of the following is a potential risk associated with Internet of Things (IoT) devices?", opts: ["They automatically delete all your photos", "They never require electricity to run", "They can be hacked and may secretly track sensitive personal data", "They cannot connect to the internet"], ans: 2, reason: "IoT devices collect a lot of sensitive data about daily routines. If they have weak security, they are vulnerable to hacking, data tracking, and surveillance." },
+            { q: "If you share a Google Doc and want your classmate to leave feedback but NOT change the actual text, which file permission should you assign them?", opts: ["Viewer", "Editor", "Owner", "Commenter"], ans: 3, reason: "The 'Commenter' permission allows users to add comments and feedback to a file, but prevents them from directly editing or deleting the content." },
+            { q: "What is a 'passive' digital footprint?", opts: ["Information you intentionally post, like uploading a photo to Instagram", "A trail of data created without you posting, like a website using cookies to track your IP address", "A physical footprint you leave on your computer keyboard", "A virus that deletes your files"], ans: 1, reason: "A passive digital footprint is created when you don't actively post anything, but your actions are still recorded (e.g., websites saving your IP address or cookies tracking your browsing)." },
+            { q: "Which of the following pieces of information is typically stored as 'metadata' when you take a digital photo?", opts: ["The specific thoughts you had while taking the picture", "The location, date, and camera settings used", "The passwords saved on your phone", "The contact list in your phone"], ans: 1, reason: "Metadata describes data about a file. For a photo, it records information like the timestamp, location, and the camera settings used." },
+            { q: "Which of the following is the best practice for choosing a safe username for online communities?", opts: ["Using your real full name and graduation year (e.g., JohnDoe2025)", "Including your school name and city", "Choosing a neutral name that does not reveal personal details (e.g., StarGamer8)", "Using your home address as the username"], ans: 2, reason: "A safe username should be neutral and not reveal personal details like your real name, school, age, or location to protect your identity from strangers." }
+        ];
+
+        const saqData = [
+            { 
+                q: "What is 'metadata' in relation to online browsing, and what kind of information might it reveal?",
+                keywords: [{name: "Data about Data", words: ["describes how", "when", "where", "data about data", "information that describes"]}, {name: "Reveals Patterns/Details", words: ["ip address", "pages visited", "time spent", "timestamp", "location"]}],
+                model: "Metadata is information that describes how, when, where, and by whom a file or document was used. In online browsing, it can reveal your IP address, the pages you visited, and the time you spent on a website."
+            },
+            { 
+                q: "Explain the difference between an active digital footprint and a passive digital footprint.",
+                keywords: [{name: "Active: Intentional Posting", words: ["active", "post", "share", "upload", "intentionally"]}, {name: "Passive: Hidden Tracking", words: ["passive", "cookies", "tracking", "ip address", "without posting", "not posting"]}],
+                model: "An active digital footprint is created when you intentionally post or share data, like uploading a photo or commenting. A passive footprint is created without you posting anything, such as when a website uses cookies to track your visits or saves your IP address."
+            },
+            { 
+                q: "List three 'red flags' that indicate a website might be an untrustworthy source of information.",
+                keywords: [{name: "No Author / No References", words: ["no author", "no references", "no facts", "vague", "no updates"]}, {name: "Clickbait / Poor Quality", words: ["clickbait", "pop-ups", "ads", "poor spelling", "all caps"]}, {name: "Not Secure", words: ["http", "not https", "suspicious url", "no padlock"]}],
+                model: "Red flags include: 1) Clickbait headlines or excessive pop-up ads, 2) No author, organization, or references listed, and 3) A suspicious URL that uses HTTP instead of the secure HTTPS."
+            },
+            { 
+                q: "What does the acronym RAVEN stand for when evaluating the credibility of an author?",
+                keywords: [{name: "Reputation / Ability", words: ["reputation", "ability to observe", "first-hand", "track record"]}, {name: "Vested Interest", words: ["vested interest", "gain something", "profit"]}, {name: "Expertise / Neutrality", words: ["expertise", "expert", "neutrality", "fair", "balanced"]}],
+                model: "RAVEN stands for: Reputation (good track record), Ability to observe (saw it first-hand), Vested interest (will they gain something by lying?), Expertise (are they an expert?), and Neutrality (is the source fair and balanced?)."
+            },
+            { 
+                q: "Name one benefit and one risk of using Internet of Things (IoT) devices in a home.",
+                keywords: [{name: "Benefit: Convenience/Automation", words: ["automation", "convenience", "efficiency", "safety", "easy", "alerts"]}, {name: "Risk: Privacy/Hacking", words: ["hacking", "data tracking", "surveillance", "privacy", "overdependence", "energy waste"]}],
+                model: "A benefit of IoT is convenience and automation (e.g., a smart thermostat saving energy). A major risk is hacking and surveillance; if a smart camera isn't secure, cybercriminals could take control of it or steal private data."
+            },
+            { 
+                q: "What does it mean to use 'Incognito mode' or private browsing, and why is it useful?",
+                keywords: [{name: "Hides Activity", words: ["hides", "private", "prevent", "not save"]}, {name: "No History or Cookies", words: ["history", "cookies", "tracking", "browsing"]}],
+                model: "Incognito mode is a private browsing feature that prevents your web browser from saving your browsing history, searches, and cookies. It is useful for hiding your activity from tracking and from other people who use the same device."
+            },
+            { 
+                q: "Why is it important to carefully set file permissions (like Viewer, Editor, or Commenter) before sharing a document online?",
+                keywords: [{name: "Control Access", words: ["control", "access", "who can see", "permissions"]}, {name: "Prevent Unwanted Changes", words: ["prevent", "unwanted changes", "accidentally delete", "stealing", "misuse", "protect"]}],
+                model: "Setting file permissions allows you to control exactly who can view, edit, or comment on your files. This is crucial to protect your work from being accidentally deleted, maliciously altered, or stolen by unauthorized people."
+            },
+            { 
+                q: "Describe one advantage and one disadvantage of using video calls for online communication.",
+                keywords: [{name: "Advantage: Personal/Body Language", words: ["emotion", "body language", "personal", "human", "face-to-face", "presentations"]}, {name: "Disadvantage: Tech Issues/Awkward", words: ["internet connection", "awkward", "camera-ready", "quiet places", "technical issues"]}],
+                model: "An advantage of video calls is that they show emotion and body language, making communication feel more personal. A disadvantage is that they require a strong internet connection and can feel awkward if you are not in a quiet place or camera-ready."
+            },
+            { 
+                q: "Give two examples of how businesses protect their digital assets in the workplace.",
+                keywords: [{name: "Passwords / Authentication", words: ["strong passwords", "two-factor", "2fa", "login"]}, {name: "Encryption / Backups", words: ["encrypt", "firewalls", "cloud backup", "separate accounts", "report suspicious"]}],
+                model: "Businesses protect digital assets by requiring strong passwords combined with two-factor authentication (2FA) and by using firewalls and encryption to protect confidential files from hackers."
+            },
+            { 
+                q: "State two advanced search techniques (like symbols or operators) you can use to get more accurate search results.",
+                keywords: [{name: "Boolean Operators", words: ["boolean", "and", "or", "not", "minus"]}, {name: "Symbols / Filters", words: ["quotation marks", "exact phrase", "truncation", "wildcard", "site:", "filetype:", "inurl:"]}],
+                model: "You can use quotation marks (e.g., \"global warming\") to search for an exact phrase, or use the 'site:' operator (e.g., site:.edu) to restrict search results to a specific website or domain type."
+            }
+        ];
+
+        const laqData = [
+            { 
+                q: "Discuss how cloud technology and digital communication tools have transformed the modern workplace compared to traditional offices.",
+                keywords: [{name: "Remote Work", words: ["remote", "anywhere", "different locations", "different places"]}, {name: "Collaboration Tools", words: ["collaborate", "real-time", "cloud", "shared drives", "video meetings", "zoom", "teams"]}, {name: "Efficiency / Automation", words: ["faster", "automate", "reduce errors", "less time", "efficiency"]}],
+                model: "Cloud technology and digital tools have allowed employees to work remotely from anywhere in the world, shifting away from a single physical office. Teams can now use tools like Zoom and Google Drive to collaborate on documents simultaneously in real-time. This increases efficiency, automates manual tasks, reduces errors, and allows work to be completed much faster than traditional paper-based methods."
+            },
+            { 
+                q: "Explain the potential risks to privacy and security posed by the Internet of Things (IoT). Outline at least three steps users should take to protect their smart devices.",
+                keywords: [{name: "Risks: Tracking / Hacking", words: ["data tracking", "hacking", "surveillance", "stealing data", "listen", "record"]}, {name: "Protection Steps", words: ["strong password", "update software", "limit data sharing", "trusted apps", "unique password", "check settings"]}],
+                model: "IoT devices pose privacy risks because they constantly collect sensitive data about daily routines, which can be tracked or sold to advertisers. If not secure, they are vulnerable to hacking and surveillance (e.g., someone taking over a security camera). To protect themselves, users should: 1) Use strong, unique passwords, 2) Keep the device's software updated to fix bugs, and 3) Regularly check privacy settings to limit data sharing."
+            },
+            { 
+                q: "Evaluate the importance of balancing screen time and managing digital wellbeing. Provide at least three healthy habits a student should adopt to maintain this balance.",
+                keywords: [{name: "Importance of Wellbeing", words: ["mental wellbeing", "stress", "sleep", "distraction", "focus", "addiction"]}, {name: "Healthy Habits", words: ["regular breaks", "20-20-20", "time limits", "offline hobbies", "turn off notifications", "before bed", "mindful"]}],
+                model: "Balancing screen time is crucial because overusing devices can lead to stress, sleep problems, and a lack of focus on schoolwork. To maintain digital wellbeing, students should adopt healthy habits such as: 1) Taking regular breaks using the 20-20-20 rule to prevent eye strain, 2) Turning off devices 30 minutes before bedtime to improve sleep, and 3) Turning off unnecessary notifications to reduce distractions while studying."
+            },
+            { 
+                q: "Describe the process a search engine uses to find and organise information before displaying results to a user. Include terms like web crawlers, search indexes, and algorithms.",
+                keywords: [{name: "Web Crawlers", words: ["web crawlers", "scan", "visit websites", "collect information", "programs"]}, {name: "Search Indexes", words: ["search index", "indexes", "database", "store", "massive"]}, {name: "Algorithms / Ranking", words: ["algorithms", "relevant results", "keywords", "behaviour", "patterns", "customise"]}],
+                model: "Search engines use automated programs called 'web crawlers' to continuously scan billions of web pages and collect information like keywords and links. This collected data is stored in massive databases known as 'search indexes'. When a user types a query, the search engine uses complex algorithms to quickly scan the index and return the most relevant results based on the keywords used and the user's past browsing behaviour."
+            },
+            { 
+                q: "Imagine you are collaborating on a school project. Explain how you would safely manage access to a shared Google Doc, and what file permissions you would assign to ensure the original work isn't accidentally deleted by peers or viewed by strangers.",
+                keywords: [{name: "File Permissions", words: ["file permissions", "editor", "commenter", "viewer", "control access"]}, {name: "Assigning Roles", words: ["assign", "trusted", "prevent", "unwanted changes", "accidentally delete"]}, {name: "Restricting Strangers", words: ["restrict", "strangers", "anyone with the link", "private", "share safely"]}],
+                model: "To safely manage the Google Doc, I would avoid making the link public to 'anyone on the internet' to ensure strangers cannot view it. I would share it directly via email only with my group members. To prevent accidental deletions, I could assign the 'Editor' permission only to highly trusted peers who need to write the main text, while assigning the 'Commenter' or 'Viewer' permission to others who only need to read it or leave feedback."
+            }
+        ];
+
+        // --- STATE VARIABLES ---
+        let currentSection = 1; // 1: MCQ, 2: SAQ, 3: LAQ
+        let currentIndex = 0;
+        let isAnswered = false;
+
+        // Scores
+        let mcqScore = 0;
+        let saqScoreTotal = 0;
+        let laqScoreTotal = 0;
+
+        // --- DOM ELEMENTS ---
+        const header = document.getElementById('quiz-header');
+        const subtitle = document.getElementById('section-subtitle');
+        const progressBar = document.getElementById('progress-bar');
+        const questionCounter = document.getElementById('question-counter');
+        const questionText = document.getElementById('question-text');
+        
+        const mcqContainer = document.getElementById('mcq-container');
+        const oeContainer = document.getElementById('open-ended-container');
+        const studentAnswerBox = document.getElementById('student-answer');
+        const checkAnswerBtn = document.getElementById('check-answer-btn');
+        
+        const feedbackContainer = document.getElementById('feedback-container');
+        const mcqFeedback = document.getElementById('mcq-feedback');
+        const oeFeedback = document.getElementById('oe-feedback');
+        const nextBtn = document.getElementById('next-btn');
+
+        // --- CORE LOGIC ---
+
+        function updateUI() {
+            isAnswered = false;
+            feedbackContainer.classList.add('hidden');
+            mcqFeedback.classList.add('hidden-section');
+            oeFeedback.classList.add('hidden-section');
+            
+            let currentData, totalInSection;
+
+            if (currentSection === 1) {
+                currentData = mcqData[currentIndex];
+                totalInSection = mcqData.length;
+                
+                // Section 1 Theme: Indigo
+                header.className = "bg-indigo-600 p-6 text-white text-center transition-colors duration-500";
+                subtitle.textContent = "Part 1: Multiple Choice";
+                
+                mcqContainer.classList.remove('hidden-section');
+                oeContainer.classList.add('hidden-section');
+                buildMCQ(currentData);
+            } 
+            else if (currentSection === 2) {
+                currentData = saqData[currentIndex];
+                totalInSection = saqData.length;
+                
+                // Section 2 Theme: Rose
+                header.className = "bg-rose-500 p-6 text-white text-center transition-colors duration-500";
+                subtitle.textContent = "Part 2: Short Answer";
+                
+                mcqContainer.classList.add('hidden-section');
+                oeContainer.classList.remove('hidden-section');
+                
+                studentAnswerBox.value = "";
+                studentAnswerBox.disabled = false;
+                studentAnswerBox.className = "w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-shadow resize-y text-slate-700";
+                
+                checkAnswerBtn.className = "mt-4 px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl transition-colors w-full shadow-sm";
+                checkAnswerBtn.classList.remove('hidden');
+            } 
+            else if (currentSection === 3) {
+                currentData = laqData[currentIndex];
+                totalInSection = laqData.length;
+                
+                // Section 3 Theme: Fuchsia
+                header.className = "bg-fuchsia-600 p-6 text-white text-center transition-colors duration-500";
+                subtitle.textContent = "Part 3: Long Answer";
+                
+                mcqContainer.classList.add('hidden-section');
+                oeContainer.classList.remove('hidden-section');
+                
+                studentAnswerBox.value = "";
+                studentAnswerBox.disabled = false;
+                studentAnswerBox.rows = 7;
+                studentAnswerBox.className = "w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500 outline-none transition-shadow resize-y text-slate-700";
+                
+                checkAnswerBtn.className = "mt-4 px-6 py-3 bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-semibold rounded-xl transition-colors w-full shadow-sm";
+                checkAnswerBtn.classList.remove('hidden');
+            }
+
+            questionText.textContent = currentData.q;
+            questionCounter.textContent = `Question ${currentIndex + 1} of ${totalInSection}`;
+            
+            // Total 25 questions (10 + 10 + 5)
+            const totalPreviousQuestions = currentSection === 1 ? 0 : currentSection === 2 ? 10 : 20;
+            const absoluteProgress = ((totalPreviousQuestions + currentIndex) / 25) * 100;
+            
+            progressBar.style.width = `${absoluteProgress}%`;
+            
+            if (currentSection === 1) progressBar.className = "bg-indigo-400 h-2 transition-all duration-300";
+            else if (currentSection === 2) progressBar.className = "bg-rose-400 h-2 transition-all duration-300";
+            else progressBar.className = "bg-fuchsia-400 h-2 transition-all duration-300";
+        }
+
+        function buildMCQ(data) {
+            mcqContainer.innerHTML = '';
+            data.opts.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200 text-slate-700 font-medium`;
+                btn.innerHTML = `<span class="inline-block w-6 h-6 rounded-full bg-slate-200 text-slate-600 text-center text-sm leading-6 mr-3 font-bold">${String.fromCharCode(65 + index)}</span> ${opt}`;
+                btn.onclick = () => gradeMCQ(index, btn, data);
+                mcqContainer.appendChild(btn);
+            });
+        }
+
+        function gradeMCQ(selectedIndex, selectedBtn, data) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const buttons = mcqContainer.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.classList.remove('hover:border-indigo-500', 'hover:bg-indigo-50', 'cursor-pointer');
+                btn.classList.add('cursor-default', 'opacity-50');
+            });
+
+            selectedBtn.classList.remove('opacity-50');
+            mcqFeedback.classList.remove('hidden-section');
+
+            if (selectedIndex === data.ans) {
+                mcqScore++;
+                selectedBtn.classList.replace('border-slate-200', 'border-green-500');
+                selectedBtn.classList.add('bg-green-50', 'text-green-800');
+                
+                document.getElementById('mcq-title').textContent = "✅ Correct!";
+                document.getElementById('mcq-title').className = "font-bold mb-2 text-lg text-green-700";
+                feedbackContainer.className = "mt-6 p-5 rounded-xl border border-green-200 bg-green-50 fade-in";
+            } else {
+                selectedBtn.classList.replace('border-slate-200', 'border-red-500');
+                selectedBtn.classList.add('bg-red-50', 'text-red-800');
+                
+                // Show correct answer
+                buttons[data.ans].classList.remove('opacity-50', 'border-slate-200');
+                buttons[data.ans].classList.add('border-green-500', 'bg-green-50');
+
+                document.getElementById('mcq-title').textContent = "❌ Incorrect";
+                document.getElementById('mcq-title').className = "font-bold mb-2 text-lg text-red-700";
+                feedbackContainer.className = "mt-6 p-5 rounded-xl border border-red-200 bg-red-50 fade-in";
+            }
+
+            document.getElementById('mcq-rationale').textContent = data.reason;
+            feedbackContainer.classList.remove('hidden');
+        }
+
+        // AUTO GRADER LOGIC
+        checkAnswerBtn.onclick = () => {
+            const input = studentAnswerBox.value.trim();
+            if(input.length < 5) {
+                alert("Please type a more detailed answer before checking!");
+                return;
+            }
+            
+            isAnswered = true;
+            studentAnswerBox.disabled = true;
+            checkAnswerBtn.classList.add('hidden');
+            
+            const data = currentSection === 2 ? saqData[currentIndex] : laqData[currentIndex];
+            const textToAnalyse = input.toLowerCase();
+            
+            let matched = 0;
+            const badgeContainer = document.getElementById('keyword-badges');
+            badgeContainer.innerHTML = '';
+
+            // Keyword Scanning
+            data.keywords.forEach(kwObj => {
+                const isFound = kwObj.words.some(word => textToAnalyse.includes(word.toLowerCase()));
+                
+                const badge = document.createElement('span');
+                if(isFound) {
+                    matched++;
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200 shadow-sm";
+                    badge.innerHTML = `✓ ${kwObj.name}`;
+                } else {
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 border border-rose-200 shadow-sm";
+                    badge.innerHTML = `✗ Missed: ${kwObj.name}`;
+                }
+                badgeContainer.appendChild(badge);
+            });
+
+            // Scoring
+            const scorePercent = Math.round((matched / data.keywords.length) * 100);
+            document.getElementById('oe-score').textContent = `${scorePercent}% Match`;
+            
+            if(scorePercent === 100) document.getElementById('oe-score').className = "px-3 py-1 bg-green-100 font-bold text-lg rounded-lg text-green-700";
+            else if(scorePercent > 0) document.getElementById('oe-score').className = "px-3 py-1 bg-amber-100 font-bold text-lg rounded-lg text-amber-700";
+            else document.getElementById('oe-score').className = "px-3 py-1 bg-rose-100 font-bold text-lg rounded-lg text-rose-700";
+
+            // Add to total
+            if(currentSection === 2) saqScoreTotal += scorePercent;
+            else laqScoreTotal += scorePercent;
+
+            document.getElementById('model-answer').textContent = data.model;
+            
+            oeFeedback.classList.remove('hidden-section');
+            feedbackContainer.className = "mt-6 p-6 rounded-xl border border-slate-200 bg-white fade-in shadow-sm";
+            feedbackContainer.classList.remove('hidden');
+        };
+
+        // Navigation
+        nextBtn.onclick = () => {
+            const arrLength = currentSection === 1 ? mcqData.length : currentSection === 2 ? saqData.length : laqData.length;
+            
+            currentIndex++;
+            if (currentIndex >= arrLength) {
+                // Advance to the next section
+                currentSection++;
+                currentIndex = 0;
+                
+                if(currentSection > 3) {
+                    progressBar.style.width = `100%`;
+                    showFinalResults();
+                    return;
+                }
+            }
+            updateUI();
+            
+            // Scroll smoothly back to top of card
+            document.getElementById('main-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        function showFinalResults() {
+            document.getElementById('main-card').classList.add('hidden');
+            const results = document.getElementById('results-container');
+            results.classList.remove('hidden');
+            
+            document.getElementById('final-mcq-score').textContent = `${mcqScore}/10`;
+            document.getElementById('final-sa-score').textContent = `${Math.round(saqScoreTotal / saqData.length)}%`;
+            document.getElementById('final-la-score').textContent = `${Math.round(laqScoreTotal / laqData.length)}%`;
+        }
+
+        // Init
+        updateUI();
+
+    </script>
+</body>
+</html>
