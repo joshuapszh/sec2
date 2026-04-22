@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3: Computer Networks - Smart Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden-section { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans p-4 md:p-8 min-h-screen flex flex-col items-center">
+
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8 mt-4 fade-in" id="main-card">
+        
+        <!-- Header -->
+        <div id="quiz-header" class="bg-emerald-600 p-6 text-white text-center transition-colors duration-500">
+            <h1 class="text-2xl font-bold">Chapter 3: Computer Networks and Data Transmission</h1>
+            <p id="section-subtitle" class="text-emerald-100 mt-1 text-sm font-medium">Part 1: Multiple Choice</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-100 h-2">
+            <div id="progress-bar" class="bg-emerald-400 h-2 transition-all duration-300" style="width: 0%;"></div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="p-6 md:p-10 relative">
+            
+            <div id="question-counter" class="text-sm font-bold text-slate-400 mb-4 tracking-wider uppercase">Question 1 of 10</div>
+            
+            <!-- Question Text -->
+            <h2 id="question-text" class="text-xl font-semibold mb-6 text-slate-800 leading-relaxed"></h2>
+
+            <!-- MCQ Container -->
+            <div id="mcq-container" class="space-y-3 hidden-section"></div>
+
+            <!-- Open Ended Container (Text Area) -->
+            <div id="open-ended-container" class="hidden-section">
+                <textarea id="student-answer" rows="5" class="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow resize-y text-slate-700" placeholder="Type your detailed answer here..."></textarea>
+                <button id="check-answer-btn" class="mt-4 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors w-full shadow-sm">Check My Answer</button>
+            </div>
+
+            <!-- Instant Feedback Area -->
+            <div id="feedback-container" class="hidden mt-6 p-5 rounded-xl border fade-in">
+                
+                <!-- MCQ Feedback -->
+                <div id="mcq-feedback" class="hidden-section">
+                    <p id="mcq-title" class="font-bold mb-2 text-lg"></p>
+                    <p id="mcq-rationale" class="text-slate-700"></p>
+                </div>
+
+                <!-- Open Ended Feedback -->
+                <div id="oe-feedback" class="hidden-section">
+                    <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-200/60">
+                        <h3 class="font-bold text-lg text-slate-800">Automated Scoring Result</h3>
+                        <span id="oe-score" class="px-3 py-1 bg-slate-100 font-bold text-lg rounded-lg text-slate-700">0/100</span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Keyword Analysis:</p>
+                        <div id="keyword-badges" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 mt-6">
+                        <p class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">Model Answer</p>
+                        <p id="model-answer" class="text-blue-900 text-sm leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <button id="next-btn" class="mt-6 px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white font-medium rounded-xl transition-colors w-full">Next Question ➔</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Results Screen -->
+    <div id="results-container" class="hidden max-w-4xl w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden text-center p-10 fade-in">
+        <h2 class="text-4xl font-bold text-slate-800 mb-3">Quiz Complete!</h2>
+        <p class="text-slate-500 mb-8 text-lg">Great job working through Chapter 3: Computer Networks.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100">
+                <p class="text-emerald-600 font-bold mb-1 uppercase tracking-wide text-sm">MCQ Score</p>
+                <p class="text-4xl font-bold text-emerald-900" id="final-mcq-score">0/10</p>
+            </div>
+            <div class="bg-cyan-50 p-6 rounded-2xl border border-cyan-100">
+                <p class="text-cyan-600 font-bold mb-1 uppercase tracking-wide text-sm">Short Answer Avg</p>
+                <p class="text-4xl font-bold text-cyan-900" id="final-sa-score">0%</p>
+            </div>
+            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                <p class="text-blue-600 font-bold mb-1 uppercase tracking-wide text-sm">Long Answer Avg</p>
+                <p class="text-4xl font-bold text-blue-900" id="final-la-score">0%</p>
+            </div>
+        </div>
+        
+        <button onclick="location.reload()" class="px-8 py-4 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition-colors shadow-lg">Retake Quiz</button>
+    </div>
+
+    <script>
+        // --- QUIZ DATA ---
+        const mcqData = [
+            { q: "Which type of network spans the largest geographical area, connecting devices across countries or continents?", opts: ["Personal Area Network (PAN)", "Local Area Network (LAN)", "Metropolitan Area Network (MAN)", "Wide Area Network (WAN)"], ans: 3, reason: "A Wide Area Network (WAN) spans across cities, countries, or continents and connects multiple LANs and MANs. The Internet is the largest WAN." },
+            { q: "Which network typically connects personal devices, like a smartphone to wireless earbuds, over a very short distance?", opts: ["PAN", "LAN", "WLAN", "MAN"], ans: 0, reason: "A Personal Area Network (PAN) connects devices within a short range, typically up to 10 metres, using technologies like Bluetooth." },
+            { q: "Which wired transmission medium uses thin glass or plastic strands to carry data as light signals?", opts: ["Twisted Pair Cables", "Coaxial Cables", "Fibre Optic Cables", "Bluetooth"], ans: 2, reason: "Fibre optic cables use thin glass or plastic strands to send data extremely fast over long distances using light signals." },
+            { q: "What is a major disadvantage of copper cables compared to fibre optic cables?", opts: ["They are more expensive to install", "They are easily affected by electrical interference", "They require specialized equipment to set up", "They are too fragile to repair easily"], ans: 1, reason: "Because copper cables use electrical signals to send data, they are easily affected by interference from surrounding electrical signals, which can weaken the data transmission." },
+            { q: "Which error detection method relies on the receiver sending a copy of the received data back to the sender for verification?", opts: ["Parity Check", "Echo Check", "Checksum", "Hamming Code"], ans: 1, reason: "In an Echo Check, the receiver returns a copy of the data. The sender compares it with the original to see if there is a mismatch." },
+            { q: "How does a Parity Check identify errors in data transmission?", opts: ["By calculating a complex mathematical checksum", "By fixing the broken bits automatically", "By adding an extra bit to ensure the total number of 1s is either even or odd", "By sending the data packets twice"], ans: 2, reason: "A parity bit is added to the data to ensure the total number of 1s matches the expected parity protocol (either even or odd)." },
+            { q: "What is the primary function of a Firewall?", opts: ["To speed up the internet connection for streaming", "To protect a trusted network by filtering incoming and outgoing traffic", "To translate domain names into IP addresses", "To permanently store backup data in the cloud"], ans: 1, reason: "A firewall is a security system that protects a trusted network by allowing safe data through while blocking harmful traffic, hackers, or unauthorised users." },
+            { q: "Which type of firewall uses Artificial Intelligence (AI) and deep packet inspection to detect complex cyber threats?", opts: ["Packet filtering firewall", "Stateful inspection firewall", "Proxy firewall", "Next-Generation Firewall (NGFW)"], ans: 3, reason: "Next-Generation Firewalls (NGFW) use deep packet inspection (DPI) and artificial intelligence (AI) to detect and prevent complex cyber threats." },
+            { q: "What type of malware secretly collects user information, like tracking cookies and keystrokes, and sends it to advertisers or hackers?", opts: ["Ransomware", "Worms", "Spyware", "Trojans"], ans: 2, reason: "Spyware secretly collects user data, tracking online activity, recording keystrokes, and stealing passwords without the user's knowledge." },
+            { q: "What is the key difference between Antivirus software and Anti-spyware?", opts: ["Antivirus protects user privacy, while anti-spyware removes computer viruses.", "Antivirus repairs broken hardware, while anti-spyware stops phishing emails.", "Antivirus detects general malware that damages the system, while anti-spyware specifically blocks programs that secretly track and collect personal data.", "Antivirus is a hardware device, while anti-spyware is a software application."], ans: 2, reason: "Antivirus protects files and system performance from destructive malware (viruses, worms, trojans), whereas anti-spyware specifically protects user privacy from hidden tracking software." }
+        ];
+
+        const saqData = [
+            { 
+                q: "Give two examples of how a Personal Area Network (PAN) can be used.",
+                keywords: [{name: "Bluetooth / Wireless", words: ["bluetooth", "wireless", "earbuds", "smartwatch", "headphones"]}, {name: "Short Distance / Personal Devices", words: ["short distance", "personal devices", "smartphone", "laptop", "file sharing", "usb"]}],
+                model: "A PAN can be used to connect a smartphone to wireless earbuds via Bluetooth, or to transfer photos from a digital camera to a laptop using a USB cable over a short distance."
+            },
+            { 
+                q: "What is a Metropolitan Area Network (MAN) and how does it differ from a LAN?",
+                keywords: [{name: "City / Large Campus", words: ["city", "town", "large campus", "metropolitan"]}, {name: "Connects Multiple LANs", words: ["connects multiple lans", "links lans", "larger than lan", "bigger than a lan"]}],
+                model: "A MAN connects multiple Local Area Networks (LANs) together across a larger geographical area, such as an entire city or a large university campus. It is larger than a single LAN but smaller than a WAN."
+            },
+            { 
+                q: "State one advantage and one disadvantage of using wireless networks instead of wired networks.",
+                keywords: [{name: "Advantage: Move Freely / Easy Setup", words: ["advantage", "move freely", "mobility", "no cables", "easier to install", "public spaces"]}, {name: "Disadvantage: Security / Interference", words: ["disadvantage", "intercepted", "hacking", "interference", "slower", "disrupt", "walls"]}],
+                model: "Advantage: Users can move freely without physical cables, making it easy to install and connect multiple devices. Disadvantage: Wireless signals can be intercepted by hackers, and they are more prone to interference from walls or weather, causing slower speeds."
+            },
+            { 
+                q: "Why are fibre optic cables considered more secure and reliable than copper cables?",
+                keywords: [{name: "Light Signals / Glass", words: ["light", "glass", "plastic strands"]}, {name: "No Interference", words: ["interference", "clearer", "stable connection"]}, {name: "Hard to Tap / Secure", words: ["difficult to tap", "secure", "without being noticed", "theft"]}],
+                model: "Fibre optic cables use light signals instead of electrical signals, making them immune to electrical interference. They are also highly secure because they are very difficult to tap or intercept without being noticed."
+            },
+            { 
+                q: "Briefly explain how a Parity Check detects errors in data transmission.",
+                keywords: [{name: "Parity Bit Added", words: ["parity bit", "added", "extra bit"]}, {name: "Even or Odd", words: ["even", "odd", "number of 1s", "count 1s"]}, {name: "Check at Receiver", words: ["receiver", "checks", "mismatch", "expected parity"]}],
+                model: "A parity bit is added to the binary data to ensure the total number of 1s is either even or odd (depending on the protocol). When the receiver gets the data, it checks the number of 1s. If it does not match the expected parity, an error is detected."
+            },
+            { 
+                q: "What happens if an error is detected during an Echo Check?",
+                keywords: [{name: "Compare Original", words: ["compare", "returned data", "original", "mismatch"]}, {name: "Corrupted / Retransmit", words: ["corrupted", "retransmission", "retransmit", "request", "send again"]}],
+                model: "In an Echo Check, if the sender compares the returned data and finds a mismatch with the original, the data is considered corrupted and a request is made for retransmission."
+            },
+            { 
+                q: "Explain the difference between a Virus and Ransomware.",
+                keywords: [{name: "Virus: Copies/Spreads", words: ["virus", "copy", "spread", "replicate", "damage"]}, {name: "Ransomware: Locks/Payment", words: ["ransomware", "locks", "files", "payment", "money", "demands", "unlock"]}],
+                model: "A virus is a program that copies itself and spreads through downloaded files to damage a computer. Ransomware specifically locks a user's files and demands a financial payment (ransom) to unlock them."
+            },
+            { 
+                q: "What is a packet filtering firewall?",
+                keywords: [{name: "Examines Packets", words: ["examines data packets", "filters packets", "checks packets"]}, {name: "Predefined Rules / IPs", words: ["predefined rules", "ip addresses", "port numbers", "allow or block"]}],
+                model: "A packet filtering firewall examines individual data packets and allows or blocks their entry into a network based on predefined rules, such as specific IP addresses and port numbers."
+            },
+            { 
+                q: "How does real-time protection in antivirus software work?",
+                keywords: [{name: "Continuously Monitors", words: ["continuously monitors", "real-time", "background", "system activities"]}, {name: "Detects / Blocks Immediately", words: ["detect and block", "immediately", "suspicious", "threats"]}],
+                model: "Real-time protection continuously monitors system activities in the background. If a file exhibits suspicious behavior (like modifying system settings), the antivirus software detects and blocks the threat immediately."
+            },
+            { 
+                q: "Why is it necessary to keep firewall rules and antivirus software regularly updated?",
+                keywords: [{name: "New / Evolving Threats", words: ["new threats", "emerging", "evolving", "latest viruses"]}, {name: "Database Updates", words: ["database", "known viruses", "security software", "counter"]}],
+                model: "Cybercriminals are constantly creating new malware and evolving threats. Regular updates ensure the software has the latest rules and a current database of known viruses to effectively detect and block these new dangers."
+            }
+        ];
+
+        const laqData = [
+            { 
+                q: "Compare Copper Cables (Twisted pair and Coaxial) with Fibre Optic Cables. Discuss their characteristics, advantages, and disadvantages.",
+                keywords: [{name: "Copper = Electrical/Affordable", words: ["copper", "electrical signals", "affordable", "easy to install"]}, {name: "Copper Disadvantages", words: ["interference", "slower", "worsen over long distances"]}, {name: "Fibre = Light/Fast", words: ["fibre optic", "light signals", "glass", "high-speed", "fast", "long distance"]}, {name: "Fibre Disadvantages", words: ["fragile", "expensive", "specialised equipment"]}],
+                model: "Copper cables transmit data via electrical signals. They are affordable and easy to install, but suffer from slower speeds and are easily affected by electrical interference over long distances. Fibre optic cables use thin glass strands to send data as light signals. They offer extremely high speeds over long distances and are immune to interference, making them highly secure. However, they are fragile, expensive to install, and require specialised equipment."
+            },
+            { 
+                q: "Explain how data transmission errors like Bit Flipping and Packet Loss occur, and describe how an Echo Check attempts to solve them. Why might an Echo Check be inefficient?",
+                keywords: [{name: "Bit Flipping / Packet Loss", words: ["bit flipping", "0 to 1", "packet loss", "fail to reach", "weak signals", "interference"]}, {name: "Echo Check Mechanism", words: ["echo check", "receiver sends back", "returns copy", "compare"]}, {name: "Inefficiency", words: ["inefficient", "twice", "bandwidth", "slow", "delays"]}],
+                model: "Bit flipping occurs when interference changes a '0' bit to a '1' bit. Packet loss happens when data fails to reach its destination due to poor signal strength. An Echo Check attempts to detect this by having the receiver send a copy of the data back to the sender. If they don't match, the sender retransmits. However, it is inefficient because it requires sending the data twice, which takes up extra bandwidth and doubles the transmission time."
+            },
+            { 
+                q: "Discuss how different organizations (Homes, Companies, and Schools) use firewalls differently to protect their networks. Mention at least three types of firewalls.",
+                keywords: [{name: "Home Use", words: ["home", "personal", "hackers", "passwords", "financial"]}, {name: "Company Use", words: ["company", "companies", "enterprise", "sensitive data", "intellectual property"]}, {name: "School Use", words: ["school", "educational", "block", "non-educational", "students"]}, {name: "Firewall Types", words: ["packet filtering", "stateful inspection", "proxy", "next-generation", "ngfw"]}],
+                model: "Homes use basic firewalls to prevent hackers from accessing personal devices or stealing passwords. Companies use advanced, enterprise-level firewalls to protect highly sensitive data, customer payment details, and intellectual property. Schools use firewalls to block non-educational websites and protect students from online threats. The types of firewalls they might use include Packet Filtering, Stateful Inspection, Proxy firewalls, and Next-Generation Firewalls (NGFW) that use AI."
+            },
+            { 
+                q: "Describe the hierarchy of computer networks from PAN to WAN. Include their typical range, use cases, and how they connect to one another.",
+                keywords: [{name: "PAN (Personal)", words: ["pan", "personal", "10 metres", "bluetooth", "smartphone"]}, {name: "LAN (Local)", words: ["lan", "local", "building", "school", "office", "printers"]}, {name: "MAN (Metropolitan)", words: ["man", "metropolitan", "city", "campus", "connects lans"]}, {name: "WAN (Wide/Global)", words: ["wan", "wide", "countries", "continents", "internet", "global"]}],
+                model: "A PAN (Personal Area Network) covers a short range up to 10 metres, connecting personal devices like a phone and wireless headphones via Bluetooth. A LAN (Local Area Network) covers a single building, school, or office, allowing users to share resources like printers. A MAN (Metropolitan Area Network) spans a city or large campus, efficiently connecting multiple LANs together. A WAN (Wide Area Network) spans countries or continents, connecting LANs and MANs globally. The Internet is the largest example of a WAN."
+            },
+            { 
+                q: "Differentiate between Antivirus software and Anti-spyware. Explain their specific purposes and give examples of the threats they remove.",
+                keywords: [{name: "Antivirus Purpose", words: ["antivirus", "malware", "damages", "system performance", "quarantine", "scan"]}, {name: "Antivirus Threats", words: ["virus", "viruses", "worm", "trojan", "ransomware"]}, {name: "Anti-spyware Purpose", words: ["anti-spyware", "privacy", "personal data", "unauthorised collection", "secretly"]}, {name: "Anti-spyware Threats", words: ["spyware", "tracking", "keyloggers", "cookies", "passwords"]}],
+                model: "Antivirus software is designed to detect, protect against, and remove general malware that damages the system or files, such as viruses, worms, Trojans, and ransomware. It uses quarantine to isolate these threats. Anti-spyware, on the other hand, specifically protects user privacy. It detects and removes programs that secretly collect data without permission, such as keyloggers, tracking cookies, and unauthorized tracking software that attempt to steal login credentials and financial details."
+            }
+        ];
+
+        // --- STATE VARIABLES ---
+        let currentSection = 1; // 1: MCQ, 2: SAQ, 3: LAQ
+        let currentIndex = 0;
+        let isAnswered = false;
+
+        // Scores
+        let mcqScore = 0;
+        let saqScoreTotal = 0;
+        let laqScoreTotal = 0;
+
+        // --- DOM ELEMENTS ---
+        const header = document.getElementById('quiz-header');
+        const subtitle = document.getElementById('section-subtitle');
+        const progressBar = document.getElementById('progress-bar');
+        const questionCounter = document.getElementById('question-counter');
+        const questionText = document.getElementById('question-text');
+        
+        const mcqContainer = document.getElementById('mcq-container');
+        const oeContainer = document.getElementById('open-ended-container');
+        const studentAnswerBox = document.getElementById('student-answer');
+        const checkAnswerBtn = document.getElementById('check-answer-btn');
+        
+        const feedbackContainer = document.getElementById('feedback-container');
+        const mcqFeedback = document.getElementById('mcq-feedback');
+        const oeFeedback = document.getElementById('oe-feedback');
+        const nextBtn = document.getElementById('next-btn');
+
+        // --- CORE LOGIC ---
+
+        function updateUI() {
+            isAnswered = false;
+            feedbackContainer.classList.add('hidden');
+            mcqFeedback.classList.add('hidden-section');
+            oeFeedback.classList.add('hidden-section');
+            
+            let currentData, totalInSection;
+
+            if (currentSection === 1) {
+                currentData = mcqData[currentIndex];
+                totalInSection = mcqData.length;
+                
+                // Section 1 Theme: Emerald
+                header.className = "bg-emerald-600 p-6 text-white text-center transition-colors duration-500";
+                subtitle.textContent = "Part 1: Multiple Choice";
+                
+                mcqContainer.classList.remove('hidden-section');
+                oeContainer.classList.add('hidden-section');
+                buildMCQ(currentData);
+            } 
+            else if (currentSection === 2) {
+                currentData = saqData[currentIndex];
+                totalInSection = saqData.length;
+                
+                // Section 2 Theme: Cyan
+                header.className = "bg-cyan-600 p-6 text-white text-center transition-colors duration-500";
+                subtitle.textContent = "Part 2: Short Answer";
+                
+                mcqContainer.classList.add('hidden-section');
+                oeContainer.classList.remove('hidden-section');
+                
+                studentAnswerBox.value = "";
+                studentAnswerBox.disabled = false;
+                studentAnswerBox.className = "w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition-shadow resize-y text-slate-700";
+                
+                checkAnswerBtn.className = "mt-4 px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-xl transition-colors w-full shadow-sm";
+                checkAnswerBtn.classList.remove('hidden');
+            } 
+            else if (currentSection === 3) {
+                currentData = laqData[currentIndex];
+                totalInSection = laqData.length;
+                
+                // Section 3 Theme: Blue
+                header.className = "bg-blue-600 p-6 text-white text-center transition-colors duration-500";
+                subtitle.textContent = "Part 3: Long Answer";
+                
+                mcqContainer.classList.add('hidden-section');
+                oeContainer.classList.remove('hidden-section');
+                
+                studentAnswerBox.value = "";
+                studentAnswerBox.disabled = false;
+                studentAnswerBox.rows = 7;
+                studentAnswerBox.className = "w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow resize-y text-slate-700";
+                
+                checkAnswerBtn.className = "mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors w-full shadow-sm";
+                checkAnswerBtn.classList.remove('hidden');
+            }
+
+            questionText.textContent = currentData.q;
+            questionCounter.textContent = `Question ${currentIndex + 1} of ${totalInSection}`;
+            
+            // Total 25 questions (10 + 10 + 5)
+            const totalPreviousQuestions = currentSection === 1 ? 0 : currentSection === 2 ? 10 : 20;
+            const absoluteProgress = ((totalPreviousQuestions + currentIndex) / 25) * 100;
+            
+            progressBar.style.width = `${absoluteProgress}%`;
+            
+            if (currentSection === 1) progressBar.className = "bg-emerald-400 h-2 transition-all duration-300";
+            else if (currentSection === 2) progressBar.className = "bg-cyan-400 h-2 transition-all duration-300";
+            else progressBar.className = "bg-blue-400 h-2 transition-all duration-300";
+        }
+
+        function buildMCQ(data) {
+            mcqContainer.innerHTML = '';
+            data.opts.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-colors duration-200 text-slate-700 font-medium`;
+                btn.innerHTML = `<span class="inline-block w-6 h-6 rounded-full bg-slate-200 text-slate-600 text-center text-sm leading-6 mr-3 font-bold">${String.fromCharCode(65 + index)}</span> ${opt}`;
+                btn.onclick = () => gradeMCQ(index, btn, data);
+                mcqContainer.appendChild(btn);
+            });
+        }
+
+        function gradeMCQ(selectedIndex, selectedBtn, data) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const buttons = mcqContainer.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.classList.remove('hover:border-emerald-500', 'hover:bg-emerald-50', 'cursor-pointer');
+                btn.classList.add('cursor-default', 'opacity-50');
+            });
+
+            selectedBtn.classList.remove('opacity-50');
+            mcqFeedback.classList.remove('hidden-section');
+
+            if (selectedIndex === data.ans) {
+                mcqScore++;
+                selectedBtn.classList.replace('border-slate-200', 'border-green-500');
+                selectedBtn.classList.add('bg-green-50', 'text-green-800');
+                
+                document.getElementById('mcq-title').textContent = "✅ Correct!";
+                document.getElementById('mcq-title').className = "font-bold mb-2 text-lg text-green-700";
+                feedbackContainer.className = "mt-6 p-5 rounded-xl border border-green-200 bg-green-50 fade-in";
+            } else {
+                selectedBtn.classList.replace('border-slate-200', 'border-red-500');
+                selectedBtn.classList.add('bg-red-50', 'text-red-800');
+                
+                // Show correct answer
+                buttons[data.ans].classList.remove('opacity-50', 'border-slate-200');
+                buttons[data.ans].classList.add('border-green-500', 'bg-green-50');
+
+                document.getElementById('mcq-title').textContent = "❌ Incorrect";
+                document.getElementById('mcq-title').className = "font-bold mb-2 text-lg text-red-700";
+                feedbackContainer.className = "mt-6 p-5 rounded-xl border border-red-200 bg-red-50 fade-in";
+            }
+
+            document.getElementById('mcq-rationale').textContent = data.reason;
+            feedbackContainer.classList.remove('hidden');
+        }
+
+        // AUTO GRADER LOGIC
+        checkAnswerBtn.onclick = () => {
+            const input = studentAnswerBox.value.trim();
+            if(input.length < 5) {
+                alert("Please type a more detailed answer before checking!");
+                return;
+            }
+            
+            isAnswered = true;
+            studentAnswerBox.disabled = true;
+            checkAnswerBtn.classList.add('hidden');
+            
+            const data = currentSection === 2 ? saqData[currentIndex] : laqData[currentIndex];
+            const textToAnalyse = input.toLowerCase();
+            
+            let matched = 0;
+            const badgeContainer = document.getElementById('keyword-badges');
+            badgeContainer.innerHTML = '';
+
+            // Keyword Scanning
+            data.keywords.forEach(kwObj => {
+                const isFound = kwObj.words.some(word => textToAnalyse.includes(word.toLowerCase()));
+                
+                const badge = document.createElement('span');
+                if(isFound) {
+                    matched++;
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200 shadow-sm";
+                    badge.innerHTML = `✓ ${kwObj.name}`;
+                } else {
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 border border-rose-200 shadow-sm";
+                    badge.innerHTML = `✗ Missed: ${kwObj.name}`;
+                }
+                badgeContainer.appendChild(badge);
+            });
+
+            // Scoring
+            const scorePercent = Math.round((matched / data.keywords.length) * 100);
+            document.getElementById('oe-score').textContent = `${scorePercent}% Match`;
+            
+            if(scorePercent === 100) document.getElementById('oe-score').className = "px-3 py-1 bg-green-100 font-bold text-lg rounded-lg text-green-700";
+            else if(scorePercent > 0) document.getElementById('oe-score').className = "px-3 py-1 bg-amber-100 font-bold text-lg rounded-lg text-amber-700";
+            else document.getElementById('oe-score').className = "px-3 py-1 bg-rose-100 font-bold text-lg rounded-lg text-rose-700";
+
+            if(currentSection === 2) saqScoreTotal += scorePercent;
+            else laqScoreTotal += scorePercent;
+
+            document.getElementById('model-answer').textContent = data.model;
+            
+            oeFeedback.classList.remove('hidden-section');
+            feedbackContainer.className = "mt-6 p-6 rounded-xl border border-slate-200 bg-white fade-in shadow-sm";
+            feedbackContainer.classList.remove('hidden');
+        };
+
+        // Navigation
+        nextBtn.onclick = () => {
+            const arrLength = currentSection === 1 ? mcqData.length : currentSection === 2 ? saqData.length : laqData.length;
+            
+            currentIndex++;
+            if (currentIndex >= arrLength) {
+                // Next Section
+                currentSection++;
+                currentIndex = 0;
+                
+                if(currentSection > 3) {
+                    progressBar.style.width = `100%`;
+                    showFinalResults();
+                    return;
+                }
+            }
+            updateUI();
+            
+            // Scroll to top of card
+            document.getElementById('main-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        function showFinalResults() {
+            document.getElementById('main-card').classList.add('hidden');
+            const results = document.getElementById('results-container');
+            results.classList.remove('hidden');
+            
+            document.getElementById('final-mcq-score').textContent = `${mcqScore}/10`;
+            document.getElementById('final-sa-score').textContent = `${Math.round(saqScoreTotal / saqData.length)}%`;
+            document.getElementById('final-la-score').textContent = `${Math.round(laqScoreTotal / laqData.length)}%`;
+        }
+
+        // Init
+        updateUI();
+
+    </script>
+</body>
+</html>
