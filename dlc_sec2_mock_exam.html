@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DLC Mock Exam — Secondary 2</title>
+<style>
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --border: #e2e0da;
+    --border-strong: #c8c5bc;
+    --text: #1a1917;
+    --muted: #6b6860;
+    --hint: #9c9a94;
+    --accent: #1a4fa8;
+    --accent-light: #e8eef9;
+    --success: #1a7a4a;
+    --success-light: #e6f4ed;
+    --danger: #b8291e;
+    --danger-light: #fcecea;
+    --warn-light: #fdf6e3;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  /* Header */
+  .exam-header {
+    background: var(--accent);
+    color: #fff;
+    padding: 2rem 2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .exam-header::after {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+  .exam-header::before {
+    content: '';
+    position: absolute;
+    right: 80px; bottom: -60px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .header-label {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 6px;
+  }
+  .exam-header h1 {
+    font-size: 24px;
+    font-weight: normal;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+  .exam-header p {
+    font-size: 13px;
+    opacity: 0.75;
+    font-family: 'Courier New', monospace;
+  }
+  .meta-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+  .meta-chip {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 3px 10px;
+    letter-spacing: 0.04em;
+  }
+
+  /* Main layout */
+  .main { max-width: 780px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* Student name */
+  .name-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .name-card label {
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    color: var(--muted);
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .name-card input {
+    flex: 1;
+    border: none;
+    border-bottom: 1.5px solid var(--border-strong);
+    background: transparent;
+    font-size: 16px;
+    font-family: 'Georgia', serif;
+    color: var(--text);
+    padding: 4px 2px;
+    outline: none;
+  }
+  .name-card input:focus { border-bottom-color: var(--accent); }
+
+  /* Section divider */
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent);
+  }
+  .section-head h2 {
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: normal;
+  }
+  .section-marks {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--hint);
+  }
+
+  /* Question card */
+  .qcard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.15s;
+  }
+  .qcard:focus-within { border-color: var(--border-strong); }
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0.6rem;
+  }
+  .q-num {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--hint);
+    letter-spacing: 0.05em;
+  }
+  .q-marks {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1px 8px;
+    color: var(--muted);
+  }
+  .q-text {
+    font-size: 15px;
+    line-height: 1.65;
+    margin-bottom: 0.9rem;
+    color: var(--text);
+  }
+
+  /* MCQ options */
+  .opts { display: flex; flex-direction: column; gap: 2px; }
+  .opt-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.5;
+    transition: background 0.1s;
+    border: 1px solid transparent;
+  }
+  .opt-label:hover { background: var(--bg); }
+  .opt-label input[type=radio] { margin-top: 3px; flex-shrink: 0; accent-color: var(--accent); }
+  .opt-label.correct { background: var(--success-light); border-color: #a3d9bc; }
+  .opt-label.wrong { background: var(--danger-light); border-color: #f4b8b4; }
+
+  /* Textarea */
+  textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: 'Georgia', serif;
+    color: var(--text);
+    background: var(--bg);
+    resize: vertical;
+    min-height: 90px;
+    line-height: 1.6;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { outline: none; border-color: var(--accent); background: #fff; }
+
+  /* Result box */
+  .result-box {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    line-height: 1.6;
+    display: none;
+    border-left: 3px solid var(--border-strong);
+    background: var(--bg);
+  }
+  .result-box.shown { display: block; }
+  .score-tag {
+    display: inline-block;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 20px;
+    padding: 2px 9px;
+    margin-right: 6px;
+  }
+  .tag-pass { background: var(--success-light); color: var(--success); }
+  .tag-part { background: var(--warn-light); color: #7a5c00; }
+  .tag-fail { background: var(--danger-light); color: var(--danger); }
+  .tag-neutral { background: var(--accent-light); color: var(--accent); }
+  .mcq-reveal {
+    margin-top: 8px;
+    font-size: 13px;
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    font-family: 'Courier New', monospace;
+  }
+  .mcq-correct { background: var(--success-light); color: var(--success); }
+  .mcq-wrong { background: var(--danger-light); color: var(--danger); }
+
+  /* Submit */
+  .submit-area {
+    margin-top: 2.5rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-align: center;
+  }
+  .submit-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 13px 36px;
+    font-size: 15px;
+    font-family: 'Georgia', serif;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .submit-btn:hover { opacity: 0.9; }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .status-msg {
+    margin-top: 0.75rem;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    color: var(--muted);
+    min-height: 1.4rem;
+  }
+
+  /* Summary */
+  .summary {
+    margin-top: 2rem;
+    background: var(--accent);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 1.75rem 2rem;
+    display: none;
+  }
+  .summary.shown { display: block; }
+  .summary h2 { font-size: 18px; font-weight: normal; margin-bottom: 0.4rem; }
+  .summary .ts { font-size: 12px; opacity: 0.65; font-family: 'Courier New', monospace; margin-bottom: 1.25rem; }
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+  .score-tile {
+    background: rgba(255,255,255,0.12);
+    border-radius: var(--radius-sm);
+    padding: 14px 12px;
+    text-align: center;
+  }
+  .score-tile .val { font-size: 26px; font-weight: normal; letter-spacing: -0.02em; }
+  .score-tile .lbl { font-size: 11px; opacity: 0.7; font-family: 'Courier New', monospace; margin-top: 3px; letter-spacing: 0.04em; }
+  .summary-note { font-size: 12px; opacity: 0.65; font-family: 'Courier New', monospace; }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    height: 6px;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.85);
+    transition: width 0.6s ease;
+    width: 0%;
+  }
+
+  /* Marking spinner */
+  .spinner {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .score-grid { grid-template-columns: repeat(2, 1fr); }
+    .name-card { flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="exam-header">
+  <div class="header-label">Heritage Academy · Secondary 2</div>
+  <h1>Digital Literacy &amp; Computing</h1>
+  <p>Mock Examination · Worktext 8 · Units 1–4</p>
+  <div class="meta-row">
+    <span class="meta-chip">Total: 100 marks</span>
+    <span class="meta-chip">MCQ: 10 · Short: 30 · Long: 60</span>
+    <span class="meta-chip">AI-marked</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="name-card">
+    <label>Student name</label>
+    <input type="text" id="sname" placeholder="Write your full name here…" autocomplete="off" />
+  </div>
+
+  <!-- SECTION A -->
+  <div class="section-head">
+    <h2>Section A — Multiple Choice</h2>
+    <span class="section-marks">10 questions × 1 mark = 10 marks</span>
+  </div>
+  <div id="mcq-wrap"></div>
+
+  <!-- SECTION B -->
+  <div class="section-head">
+    <h2>Section B — Short Answer</h2>
+    <span class="section-marks">10 questions × 3 marks = 30 marks</span>
+  </div>
+  <div id="sa-wrap"></div>
+
+  <!-- SECTION C -->
+  <div class="section-head">
+    <h2>Section C — Long Answer</h2>
+    <span class="section-marks">10 questions × 6 marks = 60 marks</span>
+  </div>
+  <div id="la-wrap"></div>
+
+  <div class="submit-area">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;">When you have answered all questions, click below. Your answers will be AI-marked and sent to your teacher.</p>
+    <button class="submit-btn" id="submit-btn">Submit my exam</button>
+    <p class="status-msg" id="status-msg"></p>
+  </div>
+
+  <div class="summary" id="summary"></div>
+</div>
+
+<script>
+const SHEET_ID = "1CvX298Fo_GNU_gy9gOEMGn28AEOxFGzghDtXBbAqMe8";
+
+const MCQ = [
+  { q: "Which number system do computers use to store and process all data?", opts: ["Decimal (base 10)", "Hexadecimal (base 16)", "Binary (base 2)", "Octal (base 8)"], ans: 2 },
+  { q: "How many bits make up one byte?", opts: ["4", "8", "16", "32"], ans: 1 },
+  { q: "What does ASCII stand for?", opts: ["American Standard Code for Information Interchange", "Automated System for Computing and Information Interchange", "American Software Computing Interface", "Advanced Standard Code for Internet"], ans: 0 },
+  { q: "Standard ASCII uses how many bits to represent each character?", opts: ["4 bits", "6 bits", "7 bits", "8 bits"], ans: 2 },
+  { q: "Which of the following is a type of business document used to attract customers and promote a product?", opts: ["Memorandum", "Annual report", "Advertisement / flyer", "Purchase order"], ans: 2 },
+  { q: "A memorandum (memo) is typically used for which purpose?", opts: ["Communicating to customers outside the organisation", "Sending a short internal message within an organisation", "Publishing financial results to shareholders", "Advertising a new product"], ans: 1 },
+  { q: "What is the purpose of a 'house style' in business documents?", opts: ["To make documents more colourful", "To ensure consistent, professional formatting across all company documents", "To allow each employee to choose their preferred font", "To reduce printing costs"], ans: 1 },
+  { q: "Which technology allows two devices to connect wirelessly over a short range, such as a phone and wireless earbuds?", opts: ["Wi-Fi", "Bluetooth", "4G / 5G", "Ethernet"], ans: 1 },
+  { q: "What is a 'web crawler' used for?", opts: ["Blocking malicious websites", "Scanning and indexing web pages for search engines", "Filtering inappropriate content for students", "Encrypting data sent over the Internet"], ans: 1 },
+  { q: "Which Boolean operator would you use to EXCLUDE a term from a search result?", opts: ["AND", "OR", "NOT / minus (–)", "PLUS"], ans: 2 }
+];
+
+const SA = [
+  { q: "Convert the decimal number 25 into binary. Show your working.", marks: 3 },
+  { q: "Convert the binary number 11010 into its decimal (denary) equivalent. Show your working.", marks: 3 },
+  { q: "Explain why computers use the binary number system instead of the decimal system.", marks: 3 },
+  { q: "State TWO differences between standard ASCII and Extended ASCII.", marks: 3 },
+  { q: "Describe TWO common features found in most business documents.", marks: 3 },
+  { q: "State what a memorandum is and give ONE example of when it would be used.", marks: 3 },
+  { q: "Explain what a 'house style' is and give TWO examples of elements it controls.", marks: 3 },
+  { q: "Describe how Bluetooth works to connect two devices. Include the term 'pairing' in your answer.", marks: 3 },
+  { q: "Explain what a web crawler does and why it is important for search engines.", marks: 3 },
+  { q: "Give TWO advanced search techniques a student can use to find more precise results on the Internet, with an example for each.", marks: 3 }
+];
+
+const LA = [
+  { q: "Explain the concept of binary number representation in computer systems. In your answer, describe: (a) what bits and bytes are, (b) how place values work in binary, and (c) why all information — including letters, images and numbers — must be converted to binary for a computer to process it.", marks: 6 },
+  { q: "A student needs to convert the following: (a) decimal 47 to binary, and (b) binary 101101 to decimal. Show full working for both conversions and explain the method used for each.", marks: 6 },
+  { q: "Describe in detail how ASCII is used to represent text in a computer. Your answer should explain: (a) what a character set is, (b) why uppercase and lowercase letters have different ASCII codes, and (c) how a word such as 'Hi' would be represented in binary using ASCII.", marks: 6 },
+  { q: "A company wants to communicate a new workplace policy to its employees and also send a promotional offer to its customers. (a) Identify the most appropriate document type for each purpose and justify your choice. (b) Describe THREE features that both documents should share as part of the company's house style.", marks: 6 },
+  { q: "Explain the role of business documents in effective communication. In your answer: (a) describe what makes a document 'effective', (b) compare how a letter and an email differ in delivery and ease of correction, and (c) explain why consistency in formatting matters for a company's professional image.", marks: 6 },
+  { q: "Discuss how document templates help organisations maintain consistency and professionalism. Include in your answer: (a) what a document template is, (b) at least THREE elements typically found in a letter template, and (c) the advantages of using templates.", marks: 6 },
+  { q: "Compare and contrast wired and wireless methods of data transmission. Your answer should: (a) give ONE example of each type, (b) explain how Bluetooth enables a Personal Area Network (PAN), and (c) evaluate ONE advantage and ONE disadvantage of wireless transmission.", marks: 6 },
+  { q: "Explain how search engines find and organise information on the Internet. In your answer, describe: (a) the role of web crawlers and search indexes, (b) how a user's previous behaviour may affect search results, and (c) how filters such as date, region and file type help refine searches.", marks: 6 },
+  { q: "Discuss the importance of evaluating online sources critically. Include: (a) why not all online content is reliable, (b) TWO specific things you would check to judge if a website is credible, and (c) an example of how misinformation could harm a student researcher.", marks: 6 },
+  { q: "Explain what the Internet of Things (IoT) is and discuss its impact on daily life. Your answer should: (a) define IoT and give TWO real-world examples, (b) describe ONE benefit and ONE risk of IoT adoption, and (c) briefly explain one ethical or security concern related to IoT devices collecting personal data.", marks: 6 }
+];
+
+// Build MCQ
+const mcqWrap = document.getElementById("mcq-wrap");
+MCQ.forEach((q, i) => {
+  const d = document.createElement("div");
+  d.className = "qcard";
+  d.innerHTML = `
+    <div class="q-meta">
+      <span class="q-num">Q${i+1}</span>
+      <span class="q-marks">1 mark</span>
+    </div>
+    <div class="q-text">${q.q}</div>
+    <div class="opts" id="opts-${i}">
+      ${q.opts.map((o,j)=>`<label class="opt-label" id="opt-${i}-${j}"><input type="radio" name="mcq${i}" value="${j}"> ${String.fromCharCode(65+j)}. ${o}</label>`).join("")}
+    </div>
+    <div id="mcq-reveal-${i}"></div>`;
+  mcqWrap.appendChild(d);
+});
+
+// Build open questions
+function buildOpen(items, prefix, wrap, startNum) {
+  items.forEach((q, i) => {
+    const d = document.createElement("div");
+    d.className = "qcard";
+    d.innerHTML = `
+      <div class="q-meta">
+        <span class="q-num">Q${startNum+i}</span>
+        <span class="q-marks">${q.marks} marks</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <textarea id="${prefix}-${i}" rows="${prefix==='la'?7:4}" placeholder="Write your answer here…"></textarea>
+      <div class="result-box" id="${prefix}-result-${i}"></div>`;
+    wrap.appendChild(d);
+  });
+}
+buildOpen(SA, "sa", document.getElementById("sa-wrap"), 11);
+buildOpen(LA, "la", document.getElementById("la-wrap"), 21);
+
+// Claude API call
+async function callClaude(prompt) {
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      system: `You are an experienced Digital Literacy and Computing teacher marking exam answers for Secondary 2 students (Marshall Cavendish Worktext 8 Units 1-4: Binary & ASCII, Business Communication, Computer Networks, Digital Citizenship). Mark holistically — assess understanding, accuracy, and relevance of the full answer, NOT just keyword presence. A well-explained answer in the student's own words scores full marks even without exact textbook phrasing. Award partial marks for partially correct or incomplete answers. Deduct marks for factual errors. Return ONLY valid JSON with no extra text or markdown: {"score": <integer>, "max": <integer>, "feedback": "<2 sentence feedback — first sentence states what was done well or what was wrong, second sentence gives a specific improvement tip>"}`,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+  const data = await r.json();
+  return JSON.parse(data.content[0].text.trim());
+}
+
+// Send to Google Sheet via GET request with URL params (no CORS issues)
+function sendToSheet(payload) {
+  return new Promise((resolve) => {
+    const webhookUrl = window.SHEET_WEBHOOK || "";
+    if (!webhookUrl) { resolve(false); return; }
+    try {
+      // Encode payload as base64 to safely pass as single URL param
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      const url = webhookUrl + "?data=" + encodeURIComponent(encoded);
+      const img = new Image();
+      img.onload = img.onerror = () => resolve(true);
+      setTimeout(() => resolve(true), 6000);
+      img.src = url;
+    } catch(e) { resolve(false); }
+  });
+}
+
+function setStatus(msg, spinner) {
+  const s = document.getElementById("status-msg");
+  s.innerHTML = spinner ? `<span class="spinner"></span>${msg}` : msg;
+}
+
+document.getElementById("submit-btn").addEventListener("click", async () => {
+  const name = document.getElementById("sname").value.trim();
+  if (!name) { alert("Please enter your full name before submitting."); return; }
+
+  const btn = document.getElementById("submit-btn");
+  btn.disabled = true;
+  btn.textContent = "Marking…";
+
+  // Grade MCQ
+  let mcqScore = 0;
+  MCQ.forEach((q, i) => {
+    const sel = document.querySelector(`input[name="mcq${i}"]:checked`);
+    const chosen = sel ? parseInt(sel.value) : -1;
+    const correct = chosen === q.ans;
+    if (correct) mcqScore++;
+    // Visual feedback
+    const rev = document.getElementById(`mcq-reveal-${i}`);
+    if (correct) {
+      document.getElementById(`opt-${i}-${chosen}`).classList.add("correct");
+      rev.innerHTML = `<div class="mcq-reveal mcq-correct">✓ Correct</div>`;
+    } else {
+      if (chosen >= 0) document.getElementById(`opt-${i}-${chosen}`).classList.add("wrong");
+      document.getElementById(`opt-${i}-${q.ans}`).classList.add("correct");
+      rev.innerHTML = `<div class="mcq-reveal mcq-wrong">✗ Incorrect — correct answer: ${String.fromCharCode(65+q.ans)}. ${q.opts[q.ans]}</div>`;
+    }
+  });
+
+  // Grade SA
+  let saTotal = 0;
+  const saResults = [];
+  for (let i = 0; i < SA.length; i++) {
+    setStatus(`Marking short answer ${i+1} of ${SA.length}…`, true);
+    const ans = document.getElementById(`sa-${i}`).value.trim();
+    let res;
+    if (!ans) {
+      res = { score: 0, max: SA[i].marks, feedback: "No answer was provided." };
+    } else {
+      try {
+        res = await callClaude(`Question (${SA[i].marks} marks): ${SA[i].q}\nStudent answer: ${ans}\nMax marks: ${SA[i].marks}`);
+      } catch(e) {
+        res = { score: 0, max: SA[i].marks, feedback: "Marking error — teacher will review." };
+      }
+    }
+    saTotal += res.score;
+    saResults.push(res);
+    const box = document.getElementById(`sa-result-${i}`);
+    box.classList.add("shown");
+    const pct = res.max > 0 ? res.score / res.max : 0;
+    const tagClass = pct >= 0.75 ? "tag-pass" : pct >= 0.4 ? "tag-part" : "tag-fail";
+    box.innerHTML = `<span class="score-tag ${tagClass}">${res.score}/${res.max}</span>${res.feedback}`;
+  }
+
+  // Grade LA
+  let laTotal = 0;
+  const laResults = [];
+  for (let i = 0; i < LA.length; i++) {
+    setStatus(`Marking long answer ${i+1} of ${LA.length}…`, true);
+    const ans = document.getElementById(`la-${i}`).value.trim();
+    let res;
+    if (!ans) {
+      res = { score: 0, max: LA[i].marks, feedback: "No answer was provided." };
+    } else {
+      try {
+        res = await callClaude(`Question (${LA[i].marks} marks): ${LA[i].q}\nStudent answer: ${ans}\nMax marks: ${LA[i].marks}`);
+      } catch(e) {
+        res = { score: 0, max: LA[i].marks, feedback: "Marking error — teacher will review." };
+      }
+    }
+    laTotal += res.score;
+    laResults.push(res);
+    const box = document.getElementById(`la-result-${i}`);
+    box.classList.add("shown");
+    const pct = res.max > 0 ? res.score / res.max : 0;
+    const tagClass = pct >= 0.75 ? "tag-pass" : pct >= 0.4 ? "tag-part" : "tag-fail";
+    box.innerHTML = `<span class="score-tag ${tagClass}">${res.score}/${res.max}</span>${res.feedback}`;
+  }
+
+  const totalScore = mcqScore + saTotal + laTotal;
+  const totalMax = 100;
+  const pct = Math.round((totalScore / totalMax) * 100);
+  const timestamp = new Date().toLocaleString("en-SG", { timeZone: "Asia/Singapore" });
+
+  // Try send to Sheet
+  setStatus("Sending results to teacher…", true);
+  const payload = {
+    timestamp, name,
+    mcqScore, saTotal, laTotal,
+    totalScore, totalMax,
+    percentage: pct + "%",
+    saAnswers: SA.map((_,i) => document.getElementById(`sa-${i}`).value.trim() || "(blank)").join(" | "),
+    laAnswers: LA.map((_,i) => document.getElementById(`la-${i}`).value.trim() || "(blank)").join(" | "),
+    saFeedback: saResults.map((r,i) => `Q${i+11}: ${r.score}/${r.max} — ${r.feedback}`).join(" | "),
+    laFeedback: laResults.map((r,i) => `Q${i+21}: ${r.score}/${r.max} — ${r.feedback}`).join(" | ")
+  };
+  const sent = await sendToSheet(payload);
+
+  setStatus(sent ? "Results sent to your teacher." : "Marking complete.", false);
+
+  // Summary card
+  const summary = document.getElementById("summary");
+  summary.classList.add("shown");
+  const grade = pct >= 75 ? "Distinction" : pct >= 60 ? "Merit" : pct >= 50 ? "Pass" : "Needs revision";
+  summary.innerHTML = `
+    <h2>Results — ${name}</h2>
+    <p class="ts">${timestamp}</p>
+    <div class="progress-wrap"><div class="progress-bar" id="pbar"></div></div>
+    <div class="score-grid">
+      <div class="score-tile"><div class="val">${totalScore}/${totalMax}</div><div class="lbl">Total score</div></div>
+      <div class="score-tile"><div class="val">${pct}%</div><div class="lbl">Percentage</div></div>
+      <div class="score-tile"><div class="val">${grade}</div><div class="lbl">Grade</div></div>
+      <div class="score-tile"><div class="val">${mcqScore}/10</div><div class="lbl">Section A · MCQ</div></div>
+      <div class="score-tile"><div class="val">${saTotal}/30</div><div class="lbl">Section B · Short</div></div>
+      <div class="score-tile"><div class="val">${laTotal}/60</div><div class="lbl">Section C · Long</div></div>
+    </div>
+    <p class="summary-note">Scroll up to review individual question feedback.</p>`;
+  setTimeout(() => { document.getElementById("pbar").style.width = pct + "%"; }, 100);
+  summary.scrollIntoView({ behavior: "smooth" });
+  btn.textContent = "Submitted";
+});
+
+window.SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbzceN6DdnCCrFdmFmxUvfdm94OfT3bVoQiw-esjx88MH33QrW8cKM_pt06VrSAnGV2c/exec";
+</script>
+</body>
+</html>
