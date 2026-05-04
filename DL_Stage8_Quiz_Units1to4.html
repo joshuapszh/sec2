@@ -1141,8 +1141,14 @@ Student's Answer: ${q.studentAnswer}
     });
 
     await setStep(4, 'active');
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error.message);
+    const respText = await resp.text();
+    console.log('Worker response status:', resp.status);
+    console.log('Worker response body:', respText);
+    let data;
+    try { data = JSON.parse(respText); } catch(pe) { throw new Error(`Worker returned non-JSON (status ${resp.status}): ${respText.slice(0,200)}`); }
+    if (!resp.ok) throw new Error(`Worker error ${resp.status}: ${data?.error?.message || respText.slice(0,200)}`);
+    if (data.error) throw new Error(`Gemini error: ${data.error.message}`);
+    if (!data.candidates?.[0]) throw new Error(`No candidates in Gemini response: ${JSON.stringify(data).slice(0,200)}`);
     const raw = data.candidates[0].content.parts.map(p => p.text || '').join('').trim();
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
@@ -1157,15 +1163,17 @@ Student's Answer: ${q.studentAnswer}
     showResults();
 
   } catch(e) {
-    console.error(e);
-    // Fallback: show results without AI marking
+    console.error('MARKING ERROR:', e);
+    // Show exact error to help diagnose
+    const errMsg = e?.message || String(e);
     state.writtenResults = {};
     [...sas, ...las].forEach(q => {
       state.writtenResults[q.id] = {
         score: null,
-        feedback: 'There was an issue connecting to the marking system. Please ask your teacher to review this answer manually.'
+        feedback: `⚠️ Marking failed: ${errMsg}. Please screenshot this and inform your teacher.`
       };
     });
+    state.markingError = errMsg;
     await setStep(5, 'active');
     await delay(400);
     await saveToSheet();
