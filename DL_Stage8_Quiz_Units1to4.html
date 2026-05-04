@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Literacy & Computing — Stage 8 Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f8f5ef;
+    --accent: #c84b31;
+    --accent2: #2d6a4f;
+    --accent3: #e9c46a;
+    --mid: #8c7b6b;
+    --light: #ede8e0;
+    --white: #ffffff;
+    --shadow: 0 4px 24px rgba(26,26,46,0.10);
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--white);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+  }
+  header .title-block h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.45rem;
+    letter-spacing: -0.01em;
+  }
+  header .title-block p {
+    font-size: 0.82rem;
+    color: #aaa;
+    margin-top: 2px;
+  }
+  .progress-pill {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50px;
+    padding: 7px 18px;
+    font-size: 0.82rem;
+    color: #ccc;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .progress-bar-mini {
+    width: 90px;
+    height: 5px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-bar-mini-fill {
+    height: 100%;
+    background: var(--accent3);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── MAIN CONTAINER ── */
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── SETUP SCREEN ── */
+  .setup-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 48px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .setup-card .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 50px;
+    margin-bottom: 20px;
+  }
+  .setup-card h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .setup-card p {
+    color: var(--mid);
+    font-size: 0.95rem;
+    max-width: 460px;
+    margin: 0 auto 36px;
+  }
+  .unit-tags {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+  }
+  .unit-tag {
+    background: var(--light);
+    border: 1.5px solid #d9d3c8;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .input-row {
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  .input-row label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--mid);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 7px;
+  }
+  .input-row input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid #d9d3c8;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    background: var(--paper);
+    color: var(--ink);
+    transition: border-color 0.2s;
+  }
+  .input-row input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .sheet-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  .sheet-row .input-row { flex: 1; }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    width: 100%;
+  }
+  .btn-primary:hover { background: #a83a22; transform: translateY(-1px); }
+  .btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+
+  .quiz-info-bar {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+  .info-chip {
+    background: var(--light);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    color: var(--mid);
+  }
+  .info-chip strong { color: var(--ink); }
+
+  /* ── QUESTION SCREEN ── */
+  .question-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .q-type-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 50px;
+  }
+  .type-mcq { background: #dbeafe; color: #1d4ed8; }
+  .type-short { background: #dcfce7; color: #15803d; }
+  .type-long { background: #fef9c3; color: #92400e; }
+
+  .q-counter {
+    font-size: 0.85rem;
+    color: var(--mid);
+  }
+
+  .question-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 36px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+  .question-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    margin-bottom: 28px;
+    color: var(--ink);
+  }
+
+  /* MCQ options */
+  .options-grid {
+    display: grid;
+    gap: 10px;
+  }
+  .option-btn {
+    background: var(--paper);
+    border: 1.5px solid #d9d3c8;
+    border-radius: 10px;
+    padding: 14px 18px;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); background: #fff5f3; }
+  .option-btn.selected { border-color: #1d4ed8; background: #dbeafe; }
+  .option-btn .opt-letter {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .option-btn.selected .opt-letter { background: #1d4ed8; color: white; }
+
+  /* Short / Long answer */
+  .answer-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid #d9d3c8;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    background: var(--paper);
+    color: var(--ink);
+    resize: vertical;
+    transition: border-color 0.2s;
+    min-height: 100px;
+  }
+  .answer-textarea.long { min-height: 180px; }
+  .answer-textarea:focus { outline: none; border-color: var(--accent2); }
+
+  .char-count {
+    text-align: right;
+    font-size: 0.78rem;
+    color: var(--mid);
+    margin-top: 6px;
+  }
+
+  .nav-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+  .btn-next {
+    background: var(--ink);
+    color: white;
+    border: none;
+    padding: 13px 32px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-next:hover { background: #2d2d4e; }
+  .btn-next:disabled { background: #ccc; cursor: not-allowed; }
+
+  .btn-submit-all {
+    background: var(--accent2);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    margin-top: 12px;
+  }
+  .btn-submit-all:hover { background: #1a4d38; }
+
+  /* Marking screen */
+  .marking-overlay {
+    text-align: center;
+    padding: 80px 20px;
+  }
+  .spinner {
+    width: 52px; height: 52px;
+    border: 4px solid var(--light);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+    margin: 0 auto 24px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .marking-overlay h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.7rem;
+    margin-bottom: 10px;
+  }
+  .marking-overlay p { color: var(--mid); font-size: 0.95rem; }
+  .marking-steps {
+    list-style: none;
+    margin: 30px auto;
+    max-width: 360px;
+    text-align: left;
+  }
+  .marking-steps li {
+    padding: 10px 0;
+    font-size: 0.9rem;
+    color: var(--mid);
+    border-bottom: 1px solid var(--light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .marking-steps li.done { color: var(--accent2); }
+  .marking-steps li.active { color: var(--ink); font-weight: 600; }
+  .step-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--light);
+    flex-shrink: 0;
+  }
+  .step-dot.done { background: var(--accent2); }
+  .step-dot.active { background: var(--accent); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* Results screen */
+  .results-hero {
+    background: var(--ink);
+    color: white;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .results-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(233,196,106,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .score-display {
+    font-family: 'DM Serif Display', serif;
+    font-size: 4.5rem;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .score-display span { color: var(--accent3); }
+  .score-label { color: #aaa; font-size: 0.9rem; margin-bottom: 24px; }
+  .score-breakdown {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .score-chip {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 12px 20px;
+    text-align: center;
+  }
+  .score-chip .sc-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    color: var(--accent3);
+  }
+  .score-chip .sc-label { font-size: 0.75rem; color: #aaa; margin-top: 2px; }
+
+  .results-section {
+    margin-bottom: 28px;
+  }
+  .results-section h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--ink);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 50px;
+  }
+  .badge-mcq { background: #dbeafe; color: #1d4ed8; }
+  .badge-short { background: #dcfce7; color: #15803d; }
+  .badge-long { background: #fef9c3; color: #92400e; }
+
+  .result-item {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 12px rgba(26,26,46,0.06);
+    border-left: 4px solid var(--light);
+  }
+  .result-item.correct { border-left-color: var(--accent2); }
+  .result-item.incorrect { border-left-color: var(--accent); }
+  .result-item.partial { border-left-color: var(--accent3); }
+
+  .ri-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .ri-question {
+    font-weight: 500;
+    font-size: 0.9rem;
+    flex: 1;
+    line-height: 1.4;
+  }
+  .ri-score {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    color: var(--mid);
+  }
+  .ri-score.full { color: var(--accent2); }
+  .ri-score.zero { color: var(--accent); }
+  .ri-score.partial-score { color: #92400e; }
+
+  .ri-student-answer {
+    background: var(--paper);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    color: var(--ink);
+    margin-bottom: 10px;
+    border: 1px solid var(--light);
+  }
+  .ri-student-answer .label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--mid);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  .ri-feedback {
+    font-size: 0.88rem;
+    color: #444;
+    line-height: 1.55;
+    padding: 10px 14px;
+    background: #f0faf4;
+    border-radius: 8px;
+    border: 1px solid #c3e6cd;
+  }
+  .ri-feedback.fb-wrong {
+    background: #fff5f3;
+    border-color: #ffd5cc;
+  }
+  .ri-feedback.fb-partial {
+    background: #fffbeb;
+    border-color: #fde68a;
+  }
+  .ri-feedback strong { color: var(--ink); }
+
+  .sheet-status {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-top: 28px;
+    border: 1.5px solid var(--light);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 0.88rem;
+    color: var(--mid);
+  }
+  .sheet-icon {
+    width: 36px; height: 36px;
+    background: #dcfce7;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .sheet-icon.error { background: #fee2e2; }
+
+  .error-box {
+    background: #fff5f3;
+    border: 1.5px solid #fca5a5;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 0.88rem;
+    color: #7f1d1d;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 18px 20px; flex-direction: column; gap: 12px; align-items: flex-start; }
+    .container { padding: 24px 16px 60px; }
+    .setup-card { padding: 28px 20px; }
+    .setup-card h2 { font-size: 1.7rem; }
+    .question-card { padding: 24px 18px; }
+    .score-display { font-size: 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-block">
+    <h1>Digital Literacy & Computing</h1>
+    <p>Stage 8 · Marshall Cavendish Education</p>
+  </div>
+  <div class="progress-pill">
+    <span id="progress-text">Ready</span>
+    <div class="progress-bar-mini">
+      <div class="progress-bar-mini-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- SETUP SCREEN -->
+  <div class="screen active" id="screen-setup">
+    <div class="setup-card">
+      <div class="badge">Heritage Academy</div>
+      <h2>Units 1–4 Assessment</h2>
+      <p>This quiz covers all four units. Your answers will be read and marked by AI, with personalised feedback on every question.</p>
+      <div class="unit-tags">
+        <span class="unit-tag">Unit 1: Representing Data</span>
+        <span class="unit-tag">Unit 2: Business Communication</span>
+        <span class="unit-tag">Unit 3: Networks & Transmission</span>
+        <span class="unit-tag">Unit 4: Being a Digital Citizen</span>
+      </div>
+      <div class="quiz-info-bar">
+        <div class="info-chip">🔵 <strong>10</strong> MCQ</div>
+        <div class="info-chip">🟢 <strong>10</strong> Short Answer</div>
+        <div class="info-chip">🟡 <strong>10</strong> Long Answer</div>
+        <div class="info-chip">📊 <strong>50</strong> marks total</div>
+      </div>
+      <div class="input-row">
+        <label>Your Full Name</label>
+        <input type="text" id="student-name" placeholder="e.g. Tan Wei Ming" />
+      </div>
+
+      <button class="btn-primary" id="btn-start">Start Assessment →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="screen-quiz">
+    <div class="question-header">
+      <span class="q-type-badge" id="q-type-badge">MCQ</span>
+      <span class="q-counter" id="q-counter">Question 1 of 30</span>
+    </div>
+    <div class="question-card">
+      <div class="question-text" id="question-text"></div>
+      <div id="answer-area"></div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn-next" id="btn-next">Next →</button>
+    </div>
+    <div id="submit-area" style="display:none;">
+      <button class="btn-submit-all" id="btn-submit">Submit & Get Results</button>
+    </div>
+  </div>
+
+  <!-- MARKING SCREEN -->
+  <div class="screen" id="screen-marking">
+    <div class="marking-overlay">
+      <div class="spinner"></div>
+      <h2>Marking your assessment…</h2>
+      <p>Please wait. Your answers are being read and evaluated carefully.</p>
+      <ul class="marking-steps">
+        <li id="step-1"><div class="step-dot"></div> Reviewing MCQ responses</li>
+        <li id="step-2"><div class="step-dot"></div> Reading short answers</li>
+        <li id="step-3"><div class="step-dot"></div> Evaluating long answers</li>
+        <li id="step-4"><div class="step-dot"></div> Generating feedback</li>
+        <li id="step-5"><div class="step-dot"></div> Saving to teacher's record</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="screen" id="screen-results">
+    <div class="results-hero">
+      <div class="score-display" id="total-score-display">—<span>/50</span></div>
+      <div class="score-label">Total Score</div>
+      <div class="score-breakdown">
+        <div class="score-chip">
+          <div class="sc-val" id="mcq-score-val">—</div>
+          <div class="sc-label">MCQ /10</div>
+        </div>
+        <div class="score-chip">
+          <div class="sc-val" id="sa-score-val">—</div>
+          <div class="sc-label">Short Answer /20</div>
+        </div>
+        <div class="score-chip">
+          <div class="sc-val" id="la-score-val">—</div>
+          <div class="sc-label">Long Answer /20</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="results-section" id="mcq-results-section">
+      <h3><span class="section-badge badge-mcq">MCQ</span> Multiple Choice Questions</h3>
+      <div id="mcq-results-list"></div>
+    </div>
+
+    <div class="results-section" id="sa-results-section">
+      <h3><span class="section-badge badge-short">Short Answer</span> Short Answer Questions</h3>
+      <div id="sa-results-list"></div>
+    </div>
+
+    <div class="results-section" id="la-results-section">
+      <h3><span class="section-badge badge-long">Long Answer</span> Long Answer Questions</h3>
+      <div id="la-results-list"></div>
+    </div>
+
+    <div class="sheet-status" id="sheet-status" style="display:none;">
+      <div class="sheet-icon" id="sheet-icon">📊</div>
+      <div>
+        <div id="sheet-status-text" style="color:var(--ink);font-weight:500;">Saved to teacher's record</div>
+        <div id="sheet-status-sub" style="margin-top:2px;">Your scores and answers have been recorded for your teacher.</div>
+      </div>
+    </div>
+
+    <div id="error-area"></div>
+  </div>
+
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  QUESTION BANK
+// ════════════════════════════════════════════════════════
+const QUESTIONS = [
+  // ── MCQ (10 questions, 1 mark each)
+  {
+    id: 'mcq1', type: 'mcq', unit: 1, marks: 1,
+    text: 'Which number system does a computer primarily use to store and process data?',
+    options: ['Decimal (base 10)', 'Binary (base 2)', 'Octal (base 8)', 'Hexadecimal (base 16)'],
+    correct: 1
+  },
+  {
+    id: 'mcq2', type: 'mcq', unit: 1, marks: 1,
+    text: 'How many bits make up one byte?',
+    options: ['4', '16', '8', '2'],
+    correct: 2
+  },
+  {
+    id: 'mcq3', type: 'mcq', unit: 1, marks: 1,
+    text: 'What does ASCII stand for and what is it used for in computing?',
+    options: [
+      'Advanced Standard Code for Internet Information — used for internet protocols',
+      'American Standard Code for Information Interchange — used to represent characters',
+      'Automated System for Coding Integers Internally — used for calculations',
+      'ASCII has no full name — it only encodes numbers'
+    ],
+    correct: 1
+  },
+  {
+    id: 'mcq4', type: 'mcq', unit: 2, marks: 1,
+    text: 'Which of the following is an example of a FORMAL business document?',
+    options: ['A text message to a colleague', 'An internal emoji reaction on Slack', 'A press release announcing a product launch', 'A casual phone call with a client'],
+    correct: 2
+  },
+  {
+    id: 'mcq5', type: 'mcq', unit: 2, marks: 1,
+    text: 'A memorandum (memo) is typically used for which purpose?',
+    options: [
+      'Sending official announcements to media outlets',
+      'Advertising products to external customers',
+      'Internal communication within an organisation',
+      'Presenting financial reports to shareholders'
+    ],
+    correct: 2
+  },
+  {
+    id: 'mcq6', type: 'mcq', unit: 3, marks: 1,
+    text: 'A Local Area Network (LAN) is BEST described as a network that:',
+    options: [
+      'Connects devices across different countries using satellite links',
+      'Connects devices within a limited area such as a school or office building',
+      'Connects cities using metropolitan fibre optic cables',
+      'Connects only two devices wirelessly using Bluetooth'
+    ],
+    correct: 1
+  },
+  {
+    id: 'mcq7', type: 'mcq', unit: 3, marks: 1,
+    text: 'Which type of cable transmits data using light signals rather than electrical signals?',
+    options: ['Coaxial cable', 'Unshielded Twisted Pair (UTP) cable', 'Shielded Twisted Pair (STP) cable', 'Fibre optic cable'],
+    correct: 3
+  },
+  {
+    id: 'mcq8', type: 'mcq', unit: 3, marks: 1,
+    text: 'In data transmission, what is "bit flipping"?',
+    options: [
+      'A method of encrypting data by reversing all binary values',
+      'An error where a 0 bit is mistakenly received as a 1 or vice versa',
+      'A technique to speed up data transfer by flipping the bit order',
+      'A network protocol for sending data in reverse sequence'
+    ],
+    correct: 1
+  },
+  {
+    id: 'mcq9', type: 'mcq', unit: 4, marks: 1,
+    text: 'What is the purpose of using the Boolean operator "AND" in a search engine query?',
+    options: [
+      'To exclude one of the terms from the results',
+      'To search for either of the terms in the results',
+      'To combine two keywords so results include BOTH terms',
+      'To search for an exact phrase in quotation marks'
+    ],
+    correct: 2
+  },
+  {
+    id: 'mcq10', type: 'mcq', unit: 4, marks: 1,
+    text: 'What is metadata in the context of digital activity?',
+    options: [
+      'The actual content of messages or photos you send',
+      'Information that describes how, when, where and by whom a file was created or used',
+      'Software used to create digital files on a computer',
+      'A type of encryption that protects personal data online'
+    ],
+    correct: 1
+  },
+
+  // ── SHORT ANSWER (10 questions, 2 marks each)
+  {
+    id: 'sa1', type: 'short', unit: 1, marks: 2,
+    text: 'Explain the difference between the decimal number system and the binary number system. In your answer, state the base of each system and give one example of each.',
+    rubric: 'Award 1 mark for correctly stating decimal is base 10 and binary is base 2. Award 1 mark for giving a correct example of a decimal number and its binary equivalent (e.g., decimal 5 = binary 101, or any valid pair). Accept any correct example.'
+  },
+  {
+    id: 'sa2', type: 'short', unit: 1, marks: 2,
+    text: 'What is the difference between a bit and a byte? Give the exact relationship between the two.',
+    rubric: 'Award 1 mark for defining a bit as a single binary digit (0 or 1), the smallest unit of data. Award 1 mark for stating that 1 byte = 8 bits.'
+  },
+  {
+    id: 'sa3', type: 'short', unit: 2, marks: 2,
+    text: 'State TWO common features that most business documents share, and briefly explain why these features are important.',
+    rubric: 'Award 1 mark for each correctly identified feature (e.g., appropriate titles/formal greetings; date and sender/recipient address; clear introduction and polite closing; company logo/house style; professional language). Award the mark only if a reasonable explanation accompanies the feature. Accept any two features from the textbook.'
+  },
+  {
+    id: 'sa4', type: 'short', unit: 2, marks: 2,
+    text: 'What is "house style" in business communication, and why do organisations use it?',
+    rubric: 'Award 1 mark for explaining house style as consistent/standard formatting used by an organisation across its documents (e.g., font, logo, colour scheme, layout). Award 1 mark for the reason: to maintain a professional image / ensure brand consistency / make documents recognisable as coming from the same organisation.'
+  },
+  {
+    id: 'sa5', type: 'short', unit: 3, marks: 2,
+    text: 'Describe ONE advantage and ONE disadvantage of wireless transmission compared to wired transmission.',
+    rubric: 'Award 1 mark for a valid advantage (e.g., no physical cables needed; devices can move freely; easier to install in public spaces; can connect many devices at once). Award 1 mark for a valid disadvantage (e.g., signals can be intercepted; interference from other devices/walls/weather; slower speeds in crowded areas; limited coverage area). Accept reasonable paraphrases from the textbook.'
+  },
+  {
+    id: 'sa6', type: 'short', unit: 3, marks: 2,
+    text: 'What is the difference between a LAN and a WAN? Give one real-world example of each.',
+    rubric: 'Award 1 mark for correctly distinguishing LAN (connects devices within a limited area like a school or office) from WAN (spans cities/countries/continents). Award 1 mark for one valid example of each: LAN — school network, home network, office network; WAN — the Internet, ATM banking network, company branch connections. Must give one of each.'
+  },
+  {
+    id: 'sa7', type: 'short', unit: 4, marks: 2,
+    text: 'Explain what a web crawler is and describe TWO things a web crawler checks when visiting a website.',
+    rubric: 'Award 1 mark for correctly defining a web crawler as a program that visits websites to collect information for search engines / to scan web pages for indexing. Award 1 mark for any two correctly stated things it checks: keywords on a page; headings, titles and links; how popular or trusted a site is. Must state two to earn the mark.'
+  },
+  {
+    id: 'sa8', type: 'short', unit: 4, marks: 2,
+    text: 'What is metadata? Give TWO specific examples of metadata that can be collected when you use a digital device.',
+    rubric: 'Award 1 mark for a correct definition: metadata is information that describes how, when, where and by whom a file/photo/document was created or used (does not include actual content). Award 1 mark for any two valid examples: sending a message — timestamp, receiver, sender, device used; taking a photo — location, date, camera settings; visiting a website — IP address, pages visited, time spent. Must give two.'
+  },
+  {
+    id: 'sa9', type: 'short', unit: 3, marks: 2,
+    text: 'Describe the echo check method of error detection in data transmission.',
+    rubric: 'Award 1 mark for explaining that in echo check, the receiver sends the received data back to the sender. Award 1 mark for explaining that the sender then compares the returned data with the original to check for errors / any differences indicate an error occurred during transmission.'
+  },
+  {
+    id: 'sa10', type: 'short', unit: 4, marks: 2,
+    text: 'Give TWO ways a user can protect their personal data privacy when searching the Internet.',
+    rubric: 'Award 1 mark for each valid privacy protection method mentioned in the textbook, up to 2 marks. Valid answers include: use privacy-focused search engines that do not track data; use incognito/private browsing mode; clear browser cookies regularly; use filters or limit app permissions; adjust browser privacy settings. Accept reasonable equivalents.'
+  },
+
+  // ── LONG ANSWER (10 questions, 2 marks each)
+  {
+    id: 'la1', type: 'long', unit: 1, marks: 2,
+    text: 'Explain why computers use the binary number system instead of the decimal number system. In your answer, refer to how computers process data and why binary is suited to this.',
+    rubric: 'Award 1 mark for explaining that computers can only understand two states (on/off, 0/1) corresponding to electrical signals. Award 1 mark for linking this to binary: binary uses only two digits (0 and 1) which directly maps to these two electronic states, making it natural and efficient for computers. A good answer will demonstrate understanding of WHY, not just state that computers use binary.'
+  },
+  {
+    id: 'la2', type: 'long', unit: 1, marks: 2,
+    text: 'Describe how ASCII is used to represent characters in a computer. In your answer, explain how a character such as the letter "A" would be stored, and why this system is important.',
+    rubric: 'Award 1 mark for explaining that ASCII assigns a unique number to each character (letters, numbers, symbols) and that this number is then stored as a binary/8-bit code in the computer. Award 1 mark for demonstrating understanding of why this matters: computers only understand numbers/digits, so ASCII acts as a bridge allowing characters (text) to be stored and processed digitally. Bonus understanding: each character is represented by 8 bits (1 byte).'
+  },
+  {
+    id: 'la3', type: 'long', unit: 2, marks: 2,
+    text: 'Compare a formal business letter and a press release. In your answer, describe the purpose of each document, state who the intended audience is, and give ONE key feature of each.',
+    rubric: 'Award 1 mark for correctly describing the formal letter (purpose: formal written communication between sender and recipient; audience: specific individual or organisation; feature: formal layout with sender/recipient addresses, date, greeting, body, closing, signature). Award 1 mark for correctly describing the press release (purpose: share news like product launches or awards with media and the public; audience: media outlets such as newspapers, magazines, websites; feature: official announcement format with contact information). Must address both documents.'
+  },
+  {
+    id: 'la4', type: 'long', unit: 2, marks: 2,
+    text: 'Why is it important for businesses to use appropriate and professional communication when writing business documents? Discuss TWO reasons, and in your answer use an example of what could go wrong if communication is unprofessional.',
+    rubric: 'Award 1 mark for each valid reason up to 2 marks. Valid reasons: maintaining professional image / credibility; avoiding misunderstandings; ensuring clear and effective communication with clients/partners; legal or regulatory compliance; building trust. The answer should show genuine understanding — not just list phrases. A good answer will give a realistic consequence of unprofessional communication (e.g., client confusion, damaged reputation, legal issues).'
+  },
+  {
+    id: 'la5', type: 'long', unit: 3, marks: 2,
+    text: 'Explain the differences between PAN, LAN, MAN and WAN. For each type, state its coverage area and give one realistic example of where it is used.',
+    rubric: 'Award up to 2 marks based on overall accuracy and completeness. Full marks: correctly defines all four — PAN (personal area, e.g. Bluetooth headphones to phone), LAN (limited area like a school/office, e.g. school computer network), MAN (city/campus-wide, e.g. university campus network or city bus Wi-Fi), WAN (global/cross-country, e.g. the Internet or ATM banking network). Award 1 mark if student correctly covers at least 3 of the 4 network types with appropriate examples. Do not penalise minor wording differences.'
+  },
+  {
+    id: 'la6', type: 'long', unit: 3, marks: 2,
+    text: 'Compare fibre optic cables and copper cables for data transmission. In your answer, discuss differences in how data is sent, speed, and at least ONE advantage and ONE disadvantage of each.',
+    rubric: 'Award 1 mark for correct comparison of how data is sent: copper cables use electrical signals; fibre optic cables use light signals. Award 1 mark for discussing speed (fibre optic is significantly faster) plus at least one advantage of fibre optic (less interference, supports long-distance, high-speed with minimal loss, harder to tap) and one disadvantage (more expensive, requires specialised equipment, fragile/hard to repair). A partial answer covering only one aspect well may earn 1 mark.'
+  },
+  {
+    id: 'la7', type: 'long', unit: 4, marks: 2,
+    text: 'Describe three advanced search techniques that can help a student find more accurate information on the Internet. For each technique, give an example of how it would be used in a real search query.',
+    rubric: 'Award up to 2 marks based on overall quality and accuracy. Full marks: student correctly identifies and explains three techniques from the textbook (Boolean operators AND/OR/NOT; quotation marks for exact phrases; truncation/wildcards; site: operator; filetype: operator; inurl: operator; date/region filters; breaking questions into smaller parts). Each technique must be accompanied by a realistic example query. Award 1 mark if two techniques are correctly explained with examples.'
+  },
+  {
+    id: 'la8', type: 'long', unit: 4, marks: 2,
+    text: 'Explain what metadata is and discuss TWO ways in which metadata collected from your online activity can be used. In your answer, include at least ONE concern about how metadata use may affect a user\'s privacy.',
+    rubric: 'Award 1 mark for a clear definition of metadata (information describing how, when, where, by whom a file was created or used — not the actual content) plus two valid uses (customise search results/feeds; targeted advertising; shared with third parties; sold to advertisers). Award 1 mark for demonstrating genuine privacy awareness — e.g., metadata may be sold or shared without the user\'s knowledge; users may not realise how much is collected; profiling based on browsing patterns. A high-quality answer will show understanding of the implications, not just list facts.'
+  },
+  {
+    id: 'la9', type: 'long', unit: 3, marks: 2,
+    text: 'A student wants to share a file between two laptops at home. Describe how they could do this using Bluetooth. In your answer, include the steps needed and state ONE advantage and ONE disadvantage of using Bluetooth compared to using a USB drive.',
+    rubric: 'Award 1 mark for a reasonably accurate description of the Bluetooth file transfer process: enable Bluetooth on both devices; pair the devices (one device adds the other); select the file to send; choose the recipient device; receiver accepts the file and saves it. Minor step omissions acceptable. Award 1 mark for one valid advantage (wireless — no physical connection needed; convenient for nearby devices) and one valid disadvantage (limited range; slower than USB for large files; security risk of interception; requires both devices to have Bluetooth).'
+  },
+  {
+    id: 'la10', type: 'long', unit: 4, marks: 2,
+    text: 'Explain why evaluating the credibility of online information is important. Describe TWO things a student should look for when deciding whether an online source is reliable, and give an example of how poor evaluation of online information could cause real-world harm.',
+    rubric: 'Award 1 mark for two valid credibility indicators a student should check: Is the source a reputable/authoritative website? Is there an author and publication date? Is the information accurate and consistent with other sources? Does the website use professional language? Is the URL a known domain (e.g., .edu, .gov)? Award 1 mark for a realistic and relevant example of harm caused by poor evaluation (e.g., sharing misinformation about health, following dangerous advice, making decisions based on false news, spreading fake news). A strong answer shows genuine critical thinking.'
+  }
+];
+
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+const state = {
+  studentName: '',
+  sheetUrl: 'https://script.google.com/macros/s/AKfycbzceN6DdnCCrFdmFmxUvfdm94OfT3bVoQiw-esjx88MH33QrW8cKM_pt06VrSAnGV2c/exec',
+  answers: {},
+  currentQ: 0,
+  results: null
+};
+
+const mcqs = QUESTIONS.filter(q => q.type === 'mcq');
+const sas  = QUESTIONS.filter(q => q.type === 'short');
+const las  = QUESTIONS.filter(q => q.type === 'long');
+const allQ = [...mcqs, ...sas, ...las];
+
+// ════════════════════════════════════════════════════════
+//  SCREEN HELPERS
+// ════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function updateProgress(current, total) {
+  const pct = Math.round((current / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `Q${current} / ${total}`;
+}
+
+// ════════════════════════════════════════════════════════
+//  SETUP
+// ════════════════════════════════════════════════════════
+document.getElementById('btn-start').addEventListener('click', () => {
+  const name = document.getElementById('student-name').value.trim();
+  if (!name) { alert('Please enter your name to begin.'); return; }
+  state.studentName = name;
+  // sheetUrl is hardcoded
+  showScreen('quiz');
+  renderQuestion(0);
+  updateProgress(1, allQ.length);
+});
+
+// ════════════════════════════════════════════════════════
+//  QUIZ RENDERING
+// ════════════════════════════════════════════════════════
+function renderQuestion(idx) {
+  const q = allQ[idx];
+  state.currentQ = idx;
+  updateProgress(idx + 1, allQ.length);
+
+  // Badge
+  const badge = document.getElementById('q-type-badge');
+  if (q.type === 'mcq') { badge.className = 'q-type-badge type-mcq'; badge.textContent = 'Multiple Choice'; }
+  else if (q.type === 'short') { badge.className = 'q-type-badge type-short'; badge.textContent = 'Short Answer · ' + q.marks + ' marks'; }
+  else { badge.className = 'q-type-badge type-long'; badge.textContent = 'Long Answer · ' + q.marks + ' marks'; }
+
+  document.getElementById('q-counter').textContent = `Question ${idx + 1} of ${allQ.length}`;
+  document.getElementById('question-text').textContent = q.text;
+
+  const area = document.getElementById('answer-area');
+  area.innerHTML = '';
+
+  if (q.type === 'mcq') {
+    const grid = document.createElement('div');
+    grid.className = 'options-grid';
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      const letters = ['A','B','C','D'];
+      btn.innerHTML = `<div class="opt-letter">${letters[i]}</div><span>${opt}</span>`;
+      if (state.answers[q.id] === i) btn.classList.add('selected');
+      btn.addEventListener('click', () => {
+        state.answers[q.id] = i;
+        grid.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        checkNext();
+      });
+      grid.appendChild(btn);
+    });
+    area.appendChild(grid);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.className = q.type === 'long' ? 'answer-textarea long' : 'answer-textarea';
+    ta.placeholder = q.type === 'short'
+      ? 'Write your answer here (2–4 sentences)…'
+      : 'Write your detailed answer here (at least 3–5 sentences)…';
+    ta.value = state.answers[q.id] || '';
+    const counter = document.createElement('div');
+    counter.className = 'char-count';
+    counter.textContent = (ta.value.length || 0) + ' characters';
+    ta.addEventListener('input', () => {
+      state.answers[q.id] = ta.value;
+      counter.textContent = ta.value.length + ' characters';
+      checkNext();
+    });
+    area.appendChild(ta);
+    area.appendChild(counter);
+  }
+
+  // Last question
+  const isLast = idx === allQ.length - 1;
+  document.getElementById('btn-next').style.display = isLast ? 'none' : '';
+  document.getElementById('submit-area').style.display = isLast ? 'block' : 'none';
+  checkNext();
+}
+
+function checkNext() {
+  const q = allQ[state.currentQ];
+  const hasAnswer = q.type === 'mcq'
+    ? state.answers[q.id] !== undefined
+    : (state.answers[q.id] || '').trim().length > 0;
+  document.getElementById('btn-next').disabled = !hasAnswer;
+  document.getElementById('btn-submit').disabled = !hasAnswer;
+}
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (state.currentQ < allQ.length - 1) renderQuestion(state.currentQ + 1);
+});
+
+document.getElementById('btn-submit').addEventListener('click', submitQuiz);
+
+// ════════════════════════════════════════════════════════
+//  SUBMISSION & MARKING
+// ════════════════════════════════════════════════════════
+async function submitQuiz() {
+  showScreen('marking');
+  await markMCQ();
+  await markWritten();
+}
+
+async function setStep(n, status) {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('step-' + i);
+    const dot = el.querySelector('.step-dot');
+    el.classList.remove('done', 'active');
+    dot.classList.remove('done', 'active');
+    if (i < n) { el.classList.add('done'); dot.classList.add('done'); }
+    else if (i === n) { el.classList.add('active'); dot.classList.add('active'); }
+  }
+}
+
+async function markMCQ() {
+  await setStep(1, 'active');
+  await delay(600);
+  const results = {};
+  mcqs.forEach(q => {
+    const studentAnswer = state.answers[q.id];
+    const correct = studentAnswer === q.correct;
+    results[q.id] = {
+      score: correct ? 1 : 0,
+      maxScore: 1,
+      feedback: correct
+        ? 'Correct! Well done.'
+        : `Incorrect. The correct answer is: "${q.options[q.correct]}". Review this topic from the textbook.`,
+      studentAnswer: studentAnswer !== undefined ? q.options[studentAnswer] : 'No answer',
+      correct
+    };
+  });
+  state.mcqResults = results;
+  await setStep(2, 'active');
+}
+
+async function markWritten() {
+  await delay(400);
+
+  // Build prompt for Claude
+  const saQuestions = sas.map((q, i) => ({
+    num: i + 1, id: q.id,
+    question: q.text,
+    rubric: q.rubric,
+    maxMarks: q.marks,
+    studentAnswer: state.answers[q.id] || '(no answer provided)'
+  }));
+
+  const laQuestions = las.map((q, i) => ({
+    num: i + 1, id: q.id,
+    question: q.text,
+    rubric: q.rubric,
+    maxMarks: q.marks,
+    studentAnswer: state.answers[q.id] || '(no answer provided)'
+  }));
+
+  await setStep(2, 'active');
+
+  const prompt = `You are an experienced and fair secondary school Digital Literacy teacher marking a student's assessment based on the Marshall Cavendish Lower Secondary Digital Literacy and Computing Stage 8 textbook (Units 1-4: Representing Data in Computer Systems, Effective Business Communication, Computer Networks and Data Transmission, Being a Digital Citizen).
+
+Student: ${state.studentName}
+
+Your task is to carefully READ each student answer and award marks based on the rubric provided. Do NOT just look for keywords — understand what the student is saying and whether they demonstrate genuine understanding.
+
+For each question:
+1. Award the marks specified in the rubric (0, 1, or 2)
+2. Write specific, helpful feedback (2-4 sentences) explaining what was good, what was missing, and how to improve
+3. Be encouraging but honest
+
+Return ONLY a JSON object in this exact format (no markdown, no explanation outside the JSON):
+{
+  "short_answers": [
+    {"id": "sa1", "score": 2, "feedback": "..."},
+    ...
+  ],
+  "long_answers": [
+    {"id": "la1", "score": 2, "feedback": "..."},
+    ...
+  ]
+}
+
+SHORT ANSWER QUESTIONS (2 marks each):
+${saQuestions.map(q => `
+Q${q.num} [ID: ${q.id}] (${q.maxMarks} marks)
+Question: ${q.question}
+Marking Rubric: ${q.rubric}
+Student's Answer: ${q.studentAnswer}
+`).join('\n')}
+
+LONG ANSWER QUESTIONS (2 marks each):
+${laQuestions.map(q => `
+Q${q.num} [ID: ${q.id}] (${q.maxMarks} marks)
+Question: ${q.question}
+Marking Rubric: ${q.rubric}
+Student's Answer: ${q.studentAnswer}
+`).join('\n')}`;
+
+  try {
+    await setStep(3, 'active');
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'You are a strict but fair school examiner. Return only valid JSON as instructed — no markdown fences, no preamble.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    await setStep(4, 'active');
+    const data = await resp.json();
+    const raw = data.content.map(b => b.text || '').join('').trim();
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    state.writtenResults = {};
+    parsed.short_answers.forEach(r => { state.writtenResults[r.id] = r; });
+    parsed.long_answers.forEach(r => { state.writtenResults[r.id] = r; });
+
+    await setStep(5, 'active');
+    await delay(600);
+    await saveToSheet();
+    showResults();
+
+  } catch(e) {
+    console.error(e);
+    // Fallback: show results without AI marking
+    state.writtenResults = {};
+    [...sas, ...las].forEach(q => {
+      state.writtenResults[q.id] = {
+        score: null,
+        feedback: 'There was an issue connecting to the marking system. Please ask your teacher to review this answer manually.'
+      };
+    });
+    await setStep(5, 'active');
+    await delay(400);
+    await saveToSheet();
+    showResults();
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  GOOGLE SHEETS
+// ════════════════════════════════════════════════════════
+async function saveToSheet() {
+  // Calculate scores
+  const mcqTotal = Object.values(state.mcqResults).reduce((s, r) => s + r.score, 0);
+  const saTotal  = sas.reduce((s, q) => s + (state.writtenResults[q.id]?.score || 0), 0);
+  const laTotal  = las.reduce((s, q) => s + (state.writtenResults[q.id]?.score || 0), 0);
+  const total    = mcqTotal + saTotal + laTotal;
+  const totalMax = 50;
+  const percentage = ((total / totalMax) * 100).toFixed(1) + '%';
+
+  // Compile SA/LA answers and feedback into single strings (Apps Script appends one row)
+  const saAnswers  = sas.map((q, i) =>
+    `SA${i+1}: ${state.answers[q.id] || '(no answer)'}`
+  ).join(' || ');
+  const laAnswers  = las.map((q, i) =>
+    `LA${i+1}: ${state.answers[q.id] || '(no answer)'}`
+  ).join(' || ');
+  const saFeedback = sas.map((q, i) =>
+    `SA${i+1} [${state.writtenResults[q.id]?.score ?? '?'}/2]: ${state.writtenResults[q.id]?.feedback || 'N/A'}`
+  ).join(' || ');
+  const laFeedback = las.map((q, i) =>
+    `LA${i+1} [${state.writtenResults[q.id]?.score ?? '?'}/2]: ${state.writtenResults[q.id]?.feedback || 'N/A'}`
+  ).join(' || ');
+
+  // Field names match Apps Script exactly
+  const rowData = {
+    timestamp:  new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore' }),
+    name:       state.studentName,
+    mcqScore:   mcqTotal,
+    saTotal:    saTotal,
+    laTotal:    laTotal,
+    totalScore: total,
+    totalMax:   totalMax,
+    percentage: percentage,
+    saAnswers:  saAnswers,
+    laAnswers:  laAnswers,
+    saFeedback: saFeedback,
+    laFeedback: laFeedback
+  };
+
+  try {
+    // Apps Script uses doGet with e.parameter.data (base64-encoded JSON)
+    const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(rowData)))));
+    const url = `${state.sheetUrl}?data=${encoded}`;
+    await fetch(url, { method: 'GET', mode: 'no-cors' });
+    state.sheetSaved = true;
+  } catch(e) {
+    state.sheetSaved = false;
+    state.sheetError = e.message;
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  SHOW RESULTS
+// ════════════════════════════════════════════════════════
+function showResults() {
+  showScreen('results');
+
+  const mcqTotal = Object.values(state.mcqResults).reduce((s, r) => s + r.score, 0);
+  const saTotal  = sas.reduce((s, q) => s + (state.writtenResults[q.id]?.score || 0), 0);
+  const laTotal  = las.reduce((s, q) => s + (state.writtenResults[q.id]?.score || 0), 0);
+  const total    = mcqTotal + saTotal + laTotal;
+
+  document.getElementById('total-score-display').innerHTML = `${total}<span>/50</span>`;
+  document.getElementById('mcq-score-val').textContent = mcqTotal;
+  document.getElementById('sa-score-val').textContent = saTotal;
+  document.getElementById('la-score-val').textContent = laTotal;
+
+  // MCQ results
+  const mcqList = document.getElementById('mcq-results-list');
+  mcqList.innerHTML = '';
+  mcqs.forEach((q, i) => {
+    const r = state.mcqResults[q.id];
+    const div = document.createElement('div');
+    div.className = 'result-item ' + (r.correct ? 'correct' : 'incorrect');
+    div.innerHTML = `
+      <div class="ri-top">
+        <div class="ri-question">Q${i+1}. ${q.text}</div>
+        <div class="ri-score ${r.score === 1 ? 'full' : 'zero'}">${r.score}/1</div>
+      </div>
+      <div class="ri-student-answer">
+        <div class="label">Your answer</div>
+        ${r.studentAnswer}
+      </div>
+      <div class="ri-feedback ${r.correct ? '' : 'fb-wrong'}">${r.feedback}</div>`;
+    mcqList.appendChild(div);
+  });
+
+  // SA results
+  const saList = document.getElementById('sa-results-list');
+  saList.innerHTML = '';
+  sas.forEach((q, i) => {
+    const r = state.writtenResults[q.id];
+    const score = r?.score ?? '?';
+    const scoreClass = score === 2 ? 'full' : (score === 0 ? 'zero' : 'partial-score');
+    const itemClass = score === 2 ? 'correct' : (score === 0 ? 'incorrect' : 'partial');
+    const fbClass = score === 2 ? '' : (score === 0 ? 'fb-wrong' : 'fb-partial');
+    const div = document.createElement('div');
+    div.className = 'result-item ' + itemClass;
+    div.innerHTML = `
+      <div class="ri-top">
+        <div class="ri-question">Q${i+1}. ${q.text}</div>
+        <div class="ri-score ${scoreClass}">${score}/2</div>
+      </div>
+      <div class="ri-student-answer">
+        <div class="label">Your answer</div>
+        ${escapeHtml(state.answers[q.id] || '(no answer)')}
+      </div>
+      <div class="ri-feedback ${fbClass}">${r?.feedback || 'No feedback available.'}</div>`;
+    saList.appendChild(div);
+  });
+
+  // LA results
+  const laList = document.getElementById('la-results-list');
+  laList.innerHTML = '';
+  las.forEach((q, i) => {
+    const r = state.writtenResults[q.id];
+    const score = r?.score ?? '?';
+    const scoreClass = score === 2 ? 'full' : (score === 0 ? 'zero' : 'partial-score');
+    const itemClass = score === 2 ? 'correct' : (score === 0 ? 'incorrect' : 'partial');
+    const fbClass = score === 2 ? '' : (score === 0 ? 'fb-wrong' : 'fb-partial');
+    const div = document.createElement('div');
+    div.className = 'result-item ' + itemClass;
+    div.innerHTML = `
+      <div class="ri-top">
+        <div class="ri-question">Q${i+1}. ${q.text}</div>
+        <div class="ri-score ${scoreClass}">${score}/2</div>
+      </div>
+      <div class="ri-student-answer">
+        <div class="label">Your answer</div>
+        ${escapeHtml(state.answers[q.id] || '(no answer)')}
+      </div>
+      <div class="ri-feedback ${fbClass}">${r?.feedback || 'No feedback available.'}</div>`;
+    laList.appendChild(div);
+  });
+
+  // Sheet status — always shown (URL is hardcoded)
+  const ss = document.getElementById('sheet-status');
+  ss.style.display = 'flex';
+  if (state.sheetSaved) {
+    document.getElementById('sheet-icon').textContent = '📊';
+    document.getElementById('sheet-icon').classList.remove('error');
+    document.getElementById('sheet-status-text').textContent = 'Saved to teacher\'s record';
+    document.getElementById('sheet-status-sub').textContent = 'Your scores and answers have been sent to your teacher\'s Google Sheet.';
+  } else {
+    document.getElementById('sheet-icon').textContent = '⚠️';
+    document.getElementById('sheet-icon').classList.add('error');
+    document.getElementById('sheet-status-text').textContent = 'Could not save to Google Sheet';
+    document.getElementById('sheet-status-sub').textContent = 'Please inform your teacher. There may be a network issue.';
+  }
+
+  document.getElementById('progress-text').textContent = 'Complete';
+  document.getElementById('progress-fill').style.width = '100%';
+}
+
+// ════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+</script>
+</body>
+</html>
