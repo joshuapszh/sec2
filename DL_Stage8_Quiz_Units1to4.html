@@ -902,6 +902,11 @@ const QUESTIONS = [
 // ════════════════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+//  CONFIG — API key entered at runtime by teacher, never hardcoded
+// ════════════════════════════════════════════════════════
+const WORKER_URL = 'https://hidden-rice-8ae3.joshua-heritage-sg.workers.dev/';
+
 const state = {
   studentName: '',
   sheetUrl: 'https://script.google.com/macros/s/AKfycbzceN6DdnCCrFdmFmxUvfdm94OfT3bVoQiw-esjx88MH33QrW8cKM_pt06VrSAnGV2c/exec',
@@ -936,7 +941,6 @@ document.getElementById('btn-start').addEventListener('click', () => {
   const name = document.getElementById('student-name').value.trim();
   if (!name) { alert('Please enter your name to begin.'); return; }
   state.studentName = name;
-  // sheetUrl is hardcoded
   showScreen('quiz');
   renderQuestion(0);
   updateProgress(1, allQ.length);
@@ -1126,20 +1130,20 @@ Student's Answer: ${q.studentAnswer}
   try {
     await setStep(3, 'active');
 
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: 'You are a strict but fair school examiner. Return only valid JSON as instructed — no markdown fences, no preamble.',
-        messages: [{ role: 'user', content: prompt }]
+        systemInstruction: { parts: [{ text: 'You are a strict but fair school examiner. Return only valid JSON as instructed — no markdown fences, no preamble, no extra text.' }] },
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 4000 }
       })
     });
 
     await setStep(4, 'active');
     const data = await resp.json();
-    const raw = data.content.map(b => b.text || '').join('').trim();
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.candidates[0].content.parts.map(p => p.text || '').join('').trim();
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
 
@@ -1330,6 +1334,7 @@ function showResults() {
 //  UTILS
 // ════════════════════════════════════════════════════════
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
 function escapeHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
 }
