@@ -143,7 +143,7 @@ input[type=text]:focus, input[type=password]:focus { outline: none; border-color
       </div>
 
       <div class="info-grid">
-        <div class="info-item"><strong>Time Limit</strong>2 hours 0 mins</div>
+        <div class="info-item"><strong>Time Limit</strong>1 hr 30 mins</div>
         <div class="info-item"><strong>Format</strong>65 Questions (MCQ & Written)</div>
       </div>
       
@@ -160,7 +160,7 @@ input[type=text]:focus, input[type=password]:focus { outline: none; border-color
       </div>
       <div style="display:flex; align-items:center; gap:16px;">
         <div class="meta" id="marksInfo"></div>
-        <div class="timer-box" id="timerDisplay">2:00:00</div>
+        <div class="timer-box" id="timerDisplay">1:30:00</div>
       </div>
     </div>
     
@@ -221,7 +221,7 @@ input[type=text]:focus, input[type=password]:focus { outline: none; border-color
 <script>
 // Configuration
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSoR989ZUpzAWCCDwgJF0mXLyB9qCcX9az8OO9RAex3sGqrWnQ7n76F8_UGP20DfFl/exec';
-const TIMER_SECONDS = 120 * 60; // 2 hours
+const TIMER_SECONDS = 90 * 60; // 1.5 hours
 
 // Generated for Sec 2 Digital Literacy Units 1 to 4
 let questions = [
@@ -552,7 +552,7 @@ Rubric: ${q.rubric}
 Student Answer: "${(answers[q.id] || '').slice(0, 1000)}"
 `).join('\n---\n')}
 
-Return ONLY valid JSON in this exact structure. Ensure every Question ID is included in the array. If an answer is blank, give 0 marks and briefly provide the correct concept.
+Return ONLY valid JSON in this exact structure. Ensure every Question ID is included in the array. If an answer is blank, give 0 marks and briefly provide the correct concept. Grade short answers strictly out of 2 marks max. Grade long answers strictly out of 5 marks max.
 {
   "questions": [
     {"id": "s1", "score": 2, "feedback": "Brief rationale"},
@@ -568,8 +568,9 @@ Return ONLY valid JSON in this exact structure. Ensure every Question ID is incl
   let rawText = "";
   let fetchError = "";
 
-  // API Fallback Logic: Try standard model, then preview model
-  const models = ['gemini-1.5-flash', 'gemini-2.5-flash-preview-09-2025'];
+  // API Fallback Logic: Try multiple standard models to ensure maximum compatibility
+  const models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.5-flash-preview-09-2025'];
+  let errorLog = [];
   
   for (const model of models) {
       try {
@@ -588,19 +589,21 @@ Return ONLY valid JSON in this exact structure. Ensure every Question ID is incl
               rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
               break; 
           } else {
-              fetchError = `API Error: ${res.status} - Model: ${model}`;
+              fetchError = `Model ${model} failed (${res.status})`;
+              errorLog.push(fetchError);
               if (res.status === 400) {
-                  throw new Error(`API Error 400: Your API key is invalid or rejected. Please verify you are using a standard Gemini API key (starting with "AIza").`);
+                  throw new Error(`API Error 400: Your API key is invalid or rejected.`);
               }
           }
       } catch (err) {
           fetchError = err.message;
+          if (!errorLog.includes(fetchError)) errorLog.push(fetchError);
           if (err.message.includes("400")) break; 
       }
   }
 
   if (!response || !response.ok) {
-      throw new Error(fetchError || "Failed to connect to the Gemini API.");
+      throw new Error(`Failed to connect to AI. Details: ${errorLog.join(' | ')}`);
   }
   
   if(!rawText) throw new Error('Received empty response from the grading engine.');
