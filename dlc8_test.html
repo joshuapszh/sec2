@@ -1,567 +1,754 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Literacy & Computing - Unit 1-4 Test</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
-        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        .smooth-scroll { scroll-behavior: smooth; }
-        .spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: #3b82f6; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* Start screen overlay */
-        #start-screen {
-            position: fixed; inset: 0; z-index: 100;
-            background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
-            display: flex; align-items: center; justify-content: center;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sec 2 Digital Literacy Test — Units 1-4</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue: #0071e3; --blue-light: #e8f2fc; --blue-dark: #005bb5;
+  --orange: #f56300; --orange-light: #fef0e5;
+  --green: #28cd41; --green-light: #e9faec;
+  --red: #ff3b30; --red-light: #ffeceb;
+  --gray: #1d1d1f; --gray-mid: #86868b; --gray-light: #f5f5f7;
+  --border: #d2d2d7; --radius: 12px; --radius-sm: 8px;
+}
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+  background: #fbfbfd; color: var(--gray); min-height: 100vh; font-weight: 400; 
+}
+#app { max-width: 820px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+.screen { display: none; }
+.screen.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Header */
+.test-header { background: #fff; color: var(--gray); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; box-shadow: 0 4px 24px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.test-header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.test-header .meta { font-size: 13px; color: var(--gray-mid); }
+.timer-box { background: var(--gray-light); color: var(--gray); border-radius: var(--radius-sm); padding: 8px 16px; font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.timer-box.warning { background: var(--red-light); color: var(--red); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+/* Progress */
+.progress-wrap { margin-bottom: 1.5rem; }
+.progress-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--blue); border-radius: 4px; transition: width 0.4s ease; }
+.progress-label { font-size: 12px; color: var(--gray-mid); margin-top: 8px; text-align: right; font-weight: 500; }
+
+/* Cards */
+.card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 2px 12px rgba(0,0,0,0.02); transition: box-shadow 0.2s; }
+.card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+.q-num { font-size: 12px; font-weight: 600; color: var(--gray-mid); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; }
+.q-unit { font-size: 10px; background: var(--gray-light); color: var(--gray-mid); padding: 3px 8px; border-radius: 20px; font-weight: 600; letter-spacing: 0.02em; margin-left: 10px; }
+.q-text { font-size: 16px; line-height: 1.5; color: var(--gray); margin-bottom: 1.25rem; font-weight: 500; }
+.marks-badge { margin-left: auto; font-size: 11px; background: var(--blue-light); color: var(--blue-dark); padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+
+/* MCQ */
+.mcq-options { display: flex; flex-direction: column; gap: 8px; }
+.mcq-opt { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; font-size: 14px; line-height: 1.4; transition: all 0.2s; user-select: none; background: #fff; }
+.mcq-opt:hover { border-color: var(--gray-mid); }
+.mcq-opt.selected { border-color: var(--blue); background: var(--blue-light); box-shadow: 0 0 0 1px var(--blue); }
+.opt-letter { font-weight: 600; min-width: 20px; color: var(--gray-mid); }
+.mcq-opt.selected .opt-letter { color: var(--blue-dark); }
+
+/* Textarea */
+textarea { width: 100%; padding: 12px 16px; font-size: 15px; font-family: inherit; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fafafa; color: var(--gray); resize: vertical; line-height: 1.5; transition: all 0.2s; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02); }
+textarea:focus { outline: none; border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px var(--blue-light); }
+.sa-area { min-height: 100px; }
+.la-area { min-height: 180px; }
+.char-hint { font-size: 12px; color: var(--gray-mid); margin-top: 6px; text-align: right; }
+
+/* Section dividers */
+.section-head { margin: 2.5rem 0 1.25rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+.section-head h2 { font-size: 18px; font-weight: 600; color: var(--gray); }
+.section-head p { font-size: 13px; color: var(--gray-mid); margin-top: 4px; }
+
+/* Buttons */
+.btn { padding: 12px 24px; border-radius: 24px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; font-family: inherit; }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-primary:hover { background: var(--blue-dark); }
+.btn-primary:disabled { background: var(--border); color: var(--gray-mid); cursor: not-allowed; }
+.btn-outline { background: #fff; color: var(--gray); border: 1px solid var(--border); }
+.btn-outline:hover { background: var(--gray-light); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { background: #d32f2f; }
+
+/* Welcome screen */
+.welcome-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem; max-width: 540px; margin: 4rem auto; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
+.welcome-card h1 { font-size: 24px; font-weight: 600; color: var(--gray); margin-bottom: 0.5rem; }
+.welcome-card .subtitle { font-size: 14px; color: var(--gray-mid); margin-bottom: 2rem; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; text-align: left; }
+.info-item { background: var(--gray-light); border-radius: var(--radius-sm); padding: 12px 16px; border: 1px solid var(--border); }
+.info-item strong { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-mid); margin-bottom: 4px; }
+input[type=text], input[type=password] { width: 100%; padding: 12px 16px; font-size: 15px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fafafa; color: var(--gray); transition: all 0.2s; margin-bottom: 8px; }
+input[type=text]:focus, input[type=password]:focus { outline: none; border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px var(--blue-light); }
+
+/* Results */
+.result-header { text-align: center; padding: 3rem 0 2rem; }
+.big-score { font-size: 64px; font-weight: 600; color: var(--gray); line-height: 1; letter-spacing: -0.02em; }
+.big-pct { font-size: 20px; color: var(--gray-mid); margin-top: 8px; }
+.grade-badge { display: inline-block; padding: 6px 20px; border-radius: 24px; font-size: 15px; font-weight: 600; margin-top: 12px; }
+.score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 2rem 0; }
+.score-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+.score-card .num { font-size: 24px; font-weight: 600; color: var(--gray); }
+.score-card .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-mid); margin-top: 6px; }
+.feedback-panel { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; font-size: 15px; line-height: 1.6; color: var(--gray); box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+
+/* Detailed Feedback Cards */
+.q-result { margin-bottom: 16px; padding: 20px; border-radius: var(--radius); font-size: 14px; line-height: 1.6; border: 1px solid var(--border); background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+.q-result.correct { border-left: 5px solid var(--green); }
+.q-result.partial { border-left: 5px solid var(--orange); }
+.q-result.wrong { border-left: 5px solid var(--red); }
+.q-result strong.q-title { font-size: 15px; color: var(--gray); display: block; margin-bottom: 12px; }
+.q-result .student-ans { margin-bottom: 8px; padding: 12px; background: #fafafa; border-radius: 6px; border: 1px solid #ebebeb; color: var(--gray); font-family: inherit;}
+.q-result .rationale { background: var(--gray-light); padding: 12px 16px; border-radius: var(--radius-sm); margin-top: 12px; font-size: 14px; color: var(--gray); border: 1px solid #e5e5ea; }
+.q-result .rubric { background: var(--blue-light); padding: 12px 16px; border-radius: var(--radius-sm); margin-top: 10px; font-size: 14px; color: var(--blue-dark); border: 1px solid #c2defa; }
+.text-green { color: var(--green); font-weight: 600; }
+.text-red { color: var(--red); font-weight: 600; }
+
+/* Status */
+.status-msg { text-align: center; font-size: 14px; color: var(--gray-mid); padding: 1.5rem; }
+.marking-spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: -4px; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media(max-width: 600px){
+  .score-grid { grid-template-columns: 1fr; }
+  .info-grid { grid-template-columns: 1fr; }
+  .test-header { flex-direction: column; align-items: flex-start; }
+  .marks-badge { display: none; }
+}
+</style>
 </head>
-<body class="smooth-scroll text-gray-800 antialiased h-screen overflow-hidden" id="body-container">
+<body>
+<div id="app">
 
-    <!-- START SCREEN (API KEY GATEKEEPER) -->
-    <div id="start-screen">
-        <div class="bg-white p-10 rounded-2xl shadow-2xl max-w-lg w-full text-center mx-4">
-            <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
-                <i class="fas fa-graduation-cap"></i>
-            </div>
-            <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Sec 2 Digital Literacy Exam</h1>
-            <p class="text-gray-600 mb-8">Units 1 - 4 Comprehensive Test</p>
-            
-            <div class="text-left mb-6">
-                <label for="student-name" class="block text-sm font-semibold text-gray-700 mb-2">Student Name:</label>
-                <div class="relative mb-4">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-user text-gray-400"></i>
-                    </div>
-                    <input type="text" id="student-name" placeholder="Enter your full name" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
-                </div>
+  <!-- Welcome Screen -->
+  <div id="screen-welcome" class="screen active">
+    <div class="welcome-card">
+      <h1 style="color: var(--blue-dark);">Sec 2 Digital Literacy Exam</h1>
+      <p class="subtitle">Units 1 - 4 Comprehensive Test</p>
+      
+      <div style="text-align: left; margin-bottom: 1.5rem;">
+        <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px; color: var(--gray);">Student Full Name</label>
+        <input type="text" id="studentName" placeholder="Enter your full name" autocomplete="off">
+        <p id="nameError" style="font-size:13px; color:var(--red); display:none; margin-top: 4px;"></p>
+      </div>
 
-                <label for="initial-api-key" class="block text-sm font-semibold text-gray-700 mb-2">Gemini API Key:</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-key text-gray-400"></i>
-                    </div>
-                    <input type="password" id="initial-api-key" placeholder="AIzaSy..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
-                </div>
-                <p id="api-error" class="text-red-500 text-sm mt-2 hidden"><i class="fas fa-exclamation-circle mr-1"></i> API Key is required to grade your answers.</p>
-            </div>
+      <div id="apiKeySection" style="text-align: left; margin-bottom: 2rem;">
+        <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px; color: var(--gray);">Gemini API Key</label>
+        <input type="password" id="apiKeyInput" placeholder="Enter the key provided by your teacher" autocomplete="off" style="font-family: monospace;">
+        <p style="font-size:12px; color:var(--gray-mid); margin-top: 6px;">The API key is required to grade your written responses upon submission.</p>
+      </div>
 
-            <button id="start-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:-translate-y-1 shadow-lg flex justify-center items-center gap-2">
-                Begin Exam <i class="fas fa-arrow-right"></i>
-            </button>
-        </div>
+      <div class="info-grid">
+        <div class="info-item"><strong>Time Limit</strong>2 hours 0 mins</div>
+        <div class="info-item"><strong>Format</strong>65 Questions (MCQ & Written)</div>
+      </div>
+      
+      <button class="btn btn-primary" onclick="startTest()" style="width: 100%; margin-top: 1rem;">Begin Assessment</button>
     </div>
+  </div>
 
-    <!-- MAIN EXAM CONTENT (HIDDEN INITIALLY) -->
-    <div id="test-content" class="hidden h-full overflow-y-auto">
-        
-        <header class="bg-blue-900 text-white shadow-lg sticky top-0 z-50">
-            <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                    <h1 class="text-2xl font-bold"><i class="fas fa-laptop-code mr-2"></i>Sec 2 Digital Literacy Test</h1>
-                    <p class="text-blue-200 text-sm">Units 1 - 4 Comprehensive Exam</p>
-                </div>
-                <div class="flex items-center gap-2 bg-blue-800 px-4 py-2 rounded-lg">
-                    <i class="fas fa-check-circle text-green-400"></i>
-                    <span class="text-sm font-medium">API Key Active</span>
-                </div>
-            </div>
-            <!-- Navigation -->
-            <div class="bg-blue-800">
-                <div class="max-w-6xl mx-auto px-4 flex gap-6 text-sm font-medium overflow-x-auto">
-                    <a href="#section-mcq" class="py-3 hover:text-blue-300 transition-colors whitespace-nowrap">Multiple Choice (30)</a>
-                    <a href="#section-short" class="py-3 hover:text-blue-300 transition-colors whitespace-nowrap">Short Answer (25)</a>
-                    <a href="#section-long" class="py-3 hover:text-blue-300 transition-colors whitespace-nowrap">Long Answer (10)</a>
-                </div>
-            </div>
-        </header>
-
-        <main class="max-w-6xl mx-auto px-4 py-8">
-            <div id="alert-container" class="hidden mb-6 p-4 rounded-lg text-sm font-medium"></div>
-
-            <form id="test-form" class="space-y-12">
-                
-                <!-- MCQ Section -->
-                <section id="section-mcq" class="scroll-mt-32">
-                    <div class="border-b-2 border-blue-900 mb-6 pb-2">
-                        <h2 class="text-3xl font-bold text-blue-900">Part 1: Multiple Choice</h2>
-                        <p class="text-gray-600">Select the single best answer for each question (1 mark each).</p>
-                    </div>
-                    <div id="mcq-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- MCQs injected by JS -->
-                    </div>
-                </section>
-
-                <!-- Short Answer Section -->
-                <section id="section-short" class="scroll-mt-32">
-                    <div class="border-b-2 border-blue-900 mb-6 pb-2">
-                        <h2 class="text-3xl font-bold text-blue-900">Part 2: Short Answer</h2>
-                        <p class="text-gray-600">Answer each question concisely in 1-3 sentences (2 marks each).</p>
-                    </div>
-                    <div id="short-container" class="space-y-6">
-                        <!-- Short answers injected by JS -->
-                    </div>
-                </section>
-
-                <!-- Long Answer Section -->
-                <section id="section-long" class="scroll-mt-32">
-                    <div class="border-b-2 border-blue-900 mb-6 pb-2">
-                        <h2 class="text-3xl font-bold text-blue-900">Part 3: Long Answer</h2>
-                        <p class="text-gray-600">Provide detailed explanations or discussions for the following prompts (5 marks each).</p>
-                    </div>
-                    <div id="long-container" class="space-y-8">
-                        <!-- Long answers injected by JS -->
-                    </div>
-                </section>
-
-                <!-- Submit Action -->
-                <div class="glass-panel p-8 rounded-xl shadow-md text-center flex flex-col items-center">
-                    <h3 class="text-xl font-bold mb-2">Ready to submit?</h3>
-                    <p class="text-gray-600 mb-6 max-w-lg">The AI will evaluate your written answers and provide detailed feedback for all questions, which may take 15-30 seconds.</p>
-                    <button type="submit" id="submit-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-full transition-transform transform hover:scale-105 shadow-lg flex items-center gap-2">
-                        <i class="fas fa-paper-plane"></i> Submit Exam for Grading
-                    </button>
-                    <div id="loading-indicator" class="hidden flex-col items-center mt-6">
-                        <div class="spinner"></div>
-                        <p class="text-blue-600 font-medium mt-3">AI is analyzing and grading your answers...</p>
-                    </div>
-                </div>
-            </form>
-
-            <!-- Results Section -->
-            <section id="results-section" class="hidden mt-12 mb-16 scroll-mt-32">
-                <div class="glass-panel rounded-2xl shadow-xl overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-900 to-indigo-800 text-white p-8 text-center">
-                        <h2 class="text-4xl font-extrabold mb-2">Exam Results</h2>
-                        <div class="flex flex-wrap justify-center gap-8 mt-6">
-                            <div class="text-center">
-                                <p class="text-blue-200 text-sm uppercase tracking-wider">MCQ Score</p>
-                                <p id="res-mcq" class="text-3xl font-bold">0 / 30</p>
-                            </div>
-                            <div class="text-center">
-                                <p class="text-blue-200 text-sm uppercase tracking-wider">Short Answer</p>
-                                <p id="res-short" class="text-3xl font-bold">0 / 50</p>
-                            </div>
-                            <div class="text-center">
-                                <p class="text-blue-200 text-sm uppercase tracking-wider">Long Answer</p>
-                                <p id="res-long" class="text-3xl font-bold">0 / 50</p>
-                            </div>
-                            <div class="text-center md:border-l-2 md:border-white md:pl-8">
-                                <p class="text-blue-200 text-sm uppercase tracking-wider">Total</p>
-                                <p id="res-total" class="text-4xl font-black text-yellow-400">0 / 130</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="p-4 md:p-8">
-                        <h3 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-6">Detailed Feedback & Explanations</h3>
-                        <div id="feedback-container" class="space-y-8">
-                            <!-- AI Feedback & MCQ Explanations injected here -->
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
+  <!-- Test Screen -->
+  <div id="screen-test" class="screen">
+    <div class="test-header">
+      <div>
+        <div style="font-size:12px; font-weight:500; color:var(--gray-mid); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.05em;">Digital Literacy & Computing</div>
+        <h1 id="headerName"></h1>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div class="meta" id="marksInfo"></div>
+        <div class="timer-box" id="timerDisplay">2:00:00</div>
+      </div>
     </div>
+    
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-label" id="progressLabel">0 of 65 answered</div>
+    </div>
+    
+    <div id="questionsContainer"></div>
+    
+    <div style="padding:2rem 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-top: 1px solid var(--border); margin-top: 2rem;">
+      <p style="font-size:14px; color:var(--gray-mid)">Ensure all questions are answered before submitting.</p>
+      <button class="btn btn-primary" id="submitBtn" onclick="confirmSubmit()">Submit Assessment</button>
+    </div>
+    
+    <div id="confirmBar" style="display:none; background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+      <p id="confirmMsg" style="font-size:15px; color:var(--gray); font-weight:500"></p>
+      <div style="display:flex; gap:12px;">
+        <button class="btn btn-outline" onclick="cancelSubmit()">Review Answers</button>
+        <button class="btn btn-primary" onclick="submitTest()">Confirm Submission</button>
+      </div>
+    </div>
+    
+    <div id="statusMsg" style="display:none; padding:1.5rem; border-radius:var(--radius); background:var(--blue-light); border:1px solid #c2defa; font-size:15px; color:var(--blue-dark); margin-bottom:2rem; text-align: center; font-weight: 500;"></div>
+    <div id="errorMsg" style="display:none; padding:1.5rem; border-radius:var(--radius); background:var(--red-light); border:1px solid #ffcdd2; font-size:14px; color:var(--red); margin-bottom:2rem; white-space:pre-wrap;"></div>
+  </div>
 
-    <script>
-        // --- GLOBAL STATE ---
-        let activeApiKey = "";
-        let studentName = "";
+  <!-- Results Screen -->
+  <div id="screen-results" class="screen">
+    <div class="result-header">
+      <div style="font-size:13px; font-weight:600; color:var(--gray-mid); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1rem;" id="resultMeta"></div>
+      <div class="big-score" id="bigScore">—</div>
+      <div class="big-pct" id="bigPct"></div>
+      <div class="grade-badge" id="gradeBadge"></div>
+    </div>
+    
+    <div class="score-grid">
+      <div class="score-card"><div class="num" id="mcqResult">—</div><div class="lbl">Multiple Choice</div></div>
+      <div class="score-card"><div class="num" id="saResult">—</div><div class="lbl">Short Answer</div></div>
+      <div class="score-card"><div class="num" id="laResult">—</div><div class="lbl">Long Answer</div></div>
+    </div>
+    
+    <div class="section-head" style="border:none; border-bottom:1px solid var(--border); padding-left:0; background:transparent;">
+      <h2>Overall Feedback</h2>
+    </div>
+    <div class="feedback-panel" id="overallFeedback"></div>
+    
+    <div class="section-head" style="border:none; border-bottom:1px solid var(--border); padding-left:0; background:transparent; margin-top:2.5rem;">
+      <h2>Detailed Review &amp; Answers</h2>
+      <p>Review the expected answers, rationales, and teacher/AI feedback below.</p>
+    </div>
+    <div id="detailedFeedback"></div>
+    
+    <p class="status-msg" id="sheetMsg"></p>
+  </div>
+</div>
 
-        // --- DATA DEFINITION WITH EXPLANATIONS ---
-        const testData = {
-            mcqs: [
-                { q: "Which number system do computers use natively to store and process information?", options: ["Decimal", "Binary", "Octal", "Hexadecimal"], answer: 1, explanation: "Computers use the binary number system (0s and 1s) because their hardware can only understand two electronic states: on (presence of current) or off (absence of current)." },
-                { q: "What is the smallest unit of data in a computer?", options: ["Byte", "Bit", "Pixel", "Digit"], answer: 1, explanation: "A bit (short for binary digit) is the absolute smallest unit of data in a computer, representing a single 0 or 1. Eight bits grouped together form a byte." },
-                { q: "What is the denary equivalent of the binary number 1001?", options: ["7", "8", "9", "10"], answer: 2, explanation: "Using place values from right to left (1, 2, 4, 8): (1×8) + (0×4) + (0×2) + (1×1) = 8 + 0 + 0 + 1 = 9." },
-                { q: "Which character encoding standard uses 7 bits and can represent 128 characters?", options: ["ASCII", "Extended ASCII", "Unicode", "Binary"], answer: 0, explanation: "Standard ASCII uses 7 bits to represent 128 different characters, including uppercase/lowercase English letters, numbers, and symbols." },
-                { q: "Which standard is best suited for supporting text in multiple languages worldwide, including emojis?", options: ["ASCII", "Extended ASCII", "Unicode", "ANSI"], answer: 2, explanation: "Unicode uses 8 to 32 bits per character, allowing it to represent over a million characters, making it perfect for global scripts, alphabets, and emojis." },
-                { q: "What is a digital image made up of?", options: ["Sound waves", "Vectors", "Pixels", "Continuous forms"], answer: 2, explanation: "Unlike continuous analogue images, digital images are broken down into a grid of tiny squares called pixels (picture elements), each assigned a binary color code." },
-                { q: "If an image has a colour depth of 2 bits, how many colours can it display?", options: ["2", "4", "8", "16"], answer: 1, explanation: "Colour depth determines the number of combinations. 2 bits per pixel means 2² = 4 possible combinations (e.g., 00, 01, 10, 11), meaning 4 colors." },
-                { q: "Which type of graphic uses mathematical formulae and does not lose quality when enlarged?", options: ["Bitmap", "Raster", "Vector", "JPEG"], answer: 2, explanation: "Vector graphics are created using mathematical formulae that define shapes, lines, and curves. Because they aren't grid-based pixels, they scale perfectly without getting blurry." },
-                { q: "What determines the loudness of a sound wave?", options: ["Amplitude", "Pitch", "Sample rate", "Bit depth"], answer: 0, explanation: "The amplitude (height of the crest/trough) of a sound wave determines its loudness. Taller waves result in louder sounds." },
-                { q: "Which of the following describes a 'house style' in business communication?", options: ["A casual tone used in internal emails", "Consistent formatting, logos, and colours", "The architectural design of an office", "An automated reply system"], answer: 1, explanation: "A 'house style' is a consistent set of formatting rules (logos, fonts, color schemes) companies use across documents to maintain a professional, recognizable brand image." },
-                { q: "Which business document is best for officially announcing a new product to the media?", options: ["Memo", "Newsletter", "Press Release", "Annual Report"], answer: 2, explanation: "A Press Release is specifically formatted as an official announcement sent to media outlets to share major news, product launches, or events." },
-                { q: "In document templates, what are '[Date]' or '[Event name]' examples of?", options: ["Watermarks", "Placeholders", "Hyperlinks", "Formatting errors"], answer: 1, explanation: "Placeholders are temporary text or symbols in a template that indicate where specific, customized information needs to be typed before sending." },
-                { q: "Which type of network connects personal devices within a short range (up to 10 metres)?", options: ["LAN", "MAN", "WAN", "PAN"], answer: 3, explanation: "A Personal Area Network (PAN) connects nearby personal devices, typically via Bluetooth or USB, for tasks like connecting wireless headphones to a smartphone." },
-                { q: "Which wired transmission method uses light signals and provides very high-speed communication?", options: ["Coaxial cables", "Twisted pair cables", "Fibre optic cables", "Bluetooth"], answer: 2, explanation: "Fibre optic cables use thin glass or plastic strands to transmit data as rapid pulses of light, making them much faster and less prone to interference than electrical copper cables." },
-                { q: "What is a key disadvantage of wireless networks compared to wired networks?", options: ["Higher installation cost", "Lack of mobility", "More susceptible to interference and hacking", "Requires drilling through walls"], answer: 2, explanation: "Wireless signals travel through the air, meaning they can be disrupted by physical obstacles or other signals (interference) and can be intercepted by hackers if not properly secured." },
-                { q: "Which error detection method sends a copy of the received data back to the sender?", options: ["Parity Check", "Checksum", "Echo Check", "Deep Packet Inspection"], answer: 2, explanation: "In an Echo Check, the receiving device literally 'echoes' the data back to the sender. The sender compares it to the original to ensure no errors occurred during transmission." },
-                { q: "What is the primary function of a firewall?", options: ["To remove viruses from files", "To block harmful traffic between trusted and untrusted networks", "To encrypt emails", "To detect spyware"], answer: 1, explanation: "A firewall acts as a security barrier, following a set of rules to filter and block harmful data packets from untrusted external networks (like the internet) from entering a trusted internal network." },
-                { q: "Which type of malware locks files and demands payment to unlock them?", options: ["Trojan", "Spyware", "Worm", "Ransomware"], answer: 3, explanation: "Ransomware maliciously encrypts a user's files or locks their system entirely, displaying a message demanding a financial ransom in exchange for the decryption key." },
-                { q: "What does the Boolean operator 'AND' do in an online search?", options: ["Excludes a term", "Finds variations of a word", "Shows results that include both terms", "Searches only within a specific website"], answer: 2, explanation: "The 'AND' operator narrows down a search by strictly requiring that both of the specified keywords exist in the search results (e.g., 'climate AND energy')." },
-                { q: "What is metadata?", options: ["A type of computer virus", "Data that describes how, when, and by whom a file was created", "The physical hardware of a server", "A secure encryption key"], answer: 1, explanation: "Metadata is 'data about data'. For example, the metadata of a photo includes the timestamp, geographic location, and camera settings used when the photo was taken." },
-                { q: "In the CRAAP test for evaluating sources, what does the 'C' stand for?", options: ["Credibility", "Currency", "Capability", "Clarity"], answer: 1, explanation: "The 'C' stands for Currency, which prompts you to ask if the information is recent and updated enough for your topic." },
-                { q: "What is the term for a headline designed to attract attention and force clicks, often lacking real facts?", options: ["Phishing", "Clickbait", "Metadata", "Podcast"], answer: 1, explanation: "Clickbait refers to sensational, exaggerated, or misleading headlines specifically designed to entice users into clicking a link, regardless of the actual content's quality." },
-                { q: "Which communication method is best for urgent matters requiring immediate, two-way clarification?", options: ["Email", "Newsletter", "Voice call", "Discussion forum"], answer: 2, explanation: "For urgent updates where immediate questions might arise, a voice or video call is best because it allows for real-time, instantaneous back-and-forth communication." },
-                { q: "What is 'cloud technology' primarily used for in the workplace?", options: ["Weather forecasting", "Storing and accessing files over the internet", "Cooling down server rooms", "Printing physical documents"], answer: 1, explanation: "Cloud technology allows workers to store files and run software applications on remote servers accessed via the internet, enabling remote work and real-time collaboration." },
-                { q: "What does IoT stand for?", options: ["Internal Operational Tech", "Internet of Things", "Information Output Transfer", "Intelligent Office Tools"], answer: 1, explanation: "The Internet of Things (IoT) refers to physical, everyday devices (like thermostats, smartwatches, or refrigerators) that connect to the internet to collect and share data." },
-                { q: "Which is a significant privacy risk associated with IoT devices?", options: ["They consume too much electricity", "They can forget how to function manually", "They constantly collect data about daily routines", "They require complex programming"], answer: 2, explanation: "Because IoT devices are embedded in homes and wearables, they constantly track sensitive habits, health stats, and locations, which could be exploited if hacked or sold to advertisers." },
-                { q: "If you share a document and only want the person to provide feedback without altering the text, which permission should you use?", options: ["Viewer", "Commenter", "Editor", "Owner"], answer: 1, explanation: "The 'Commenter' role allows users to read the document and leave feedback notes or suggestions in the margins, but they cannot directly modify the core text itself." },
-                { q: "Which of these is considered an unsafe practice for an online username?", options: ["Using a neutral name", "Using your real full name and birth year", "Using numbers and symbols", "Keeping it unique per platform"], answer: 1, explanation: "Using your real name and birth year reveals Personally Identifiable Information (PII) to strangers, making you vulnerable to tracking, identity theft, or unwanted contact." },
-                { q: "What does the padlock icon next to a URL (HTTPS) indicate?", options: ["The website is free", "The connection is encrypted and safe", "The website has no ads", "The website is owned by the government"], answer: 1, explanation: "The padlock and 'HTTPS' protocol mean the connection is encrypted, ensuring that data passed between your browser and the website (like passwords) cannot be easily intercepted." },
-                { q: "What does Two-Factor Authentication (2FA) do?", options: ["Doubles the internet speed", "Requires two different types of verification to log in", "Allows two users to share one account", "Encrypts your hard drive twice"], answer: 1, explanation: "2FA adds an extra layer of security. Even if a hacker guesses your password (factor 1), they still need a secondary proof, like a fingerprint or a code texted to your phone (factor 2), to access your account." }
-            ],
-            short: [
-                "Define a positional number system and state the base of the binary system.",
-                "Explain the main difference between standard ASCII and Unicode in terms of representation.",
-                "Briefly explain how an analogue image is converted into a digital image.",
-                "What is 'colour depth' and how does it affect the file size of an image?",
-                "What is the difference between amplitude and pitch in a sound wave?",
-                "Define the term 'house style' and give two examples of what it includes.",
-                "Why is it important to consider the recipient's culture when using emojis in business communication?",
-                "State two differences between a Local Area Network (LAN) and a Wide Area Network (WAN).",
-                "Explain the difference in how data is transmitted through copper cables versus fibre optic cables.",
-                "What is an 'Echo Check' in data transmission?",
-                "How does a parity check help detect errors in data transmission?",
-                "What is the difference between a Virus and a Worm?",
-                "Describe how a packet filtering firewall operates.",
-                "What is the specific function of Anti-spyware software?",
-                "Explain how the use of quotation marks changes the results of a search engine query.",
-                "What does 'site:.edu' do when added to an internet search?",
-                "What is 'metadata' in the context of taking a digital photograph?",
-                "In the RAVEN method for evaluating authors, what do 'Vested interest' and 'Expertise' mean?",
-                "Give two signs (red flags) that a website might be untrustworthy.",
-                "Why might sending a formal email be a better choice than a text message for a business complaint?",
-                "Describe two ways cloud technology has changed the modern workplace.",
-                "What is the Internet of Things (IoT)? Give one example.",
-                "State one convenience benefit and one privacy risk of using IoT devices at home.",
-                "Why is it dangerous to use the same username and password across multiple platforms?",
-                "What does it mean to grant someone 'Editor' file permissions?"
-            ],
-            long: [
-                "Explain the difference between bitmap and vector graphics. Include how they handle scaling and give an example of what each is best used for.",
-                "Discuss the advantages and disadvantages of using a wireless network (WLAN) compared to a wired network (LAN) in a school environment.",
-                "A company is facing cyber threats. Explain what firewalls, antivirus, and anti-spyware software are, and detail how they work together to protect the company's network.",
-                "Explain the CRAAP test. Detail what each letter stands for and how a student should apply it when researching information online.",
-                "Discuss the impact of informal communication (like tone, emojis, and GIFs) in business documents. Provide examples of when they are appropriate and when they can damage a company's reputation.",
-                "Describe the process of converting sound into digital data. Mention the roles of the microphone, the Analogue-to-Digital Converter (ADC), sample rate, and bit depth.",
-                "Explain how search engines work using web crawlers and indexes. Then, describe three advanced search techniques (e.g., Boolean operators, truncation) that can help narrow down search results.",
-                "Discuss the concept of 'Internet of Things' (IoT) in the context of smart homes. Explain two benefits it brings and discuss three potential risks associated with IoT adoption.",
-                "A student is working on a collaborative school project online. Propose a comprehensive set of digital citizenship rules they should follow to protect their personal identity, files, and wellbeing.",
-                "Compare the four types of computer networks: PAN, LAN, MAN, and WAN. Describe their typical geographical coverage and provide a real-world example for each."
-            ]
-        };
+<script>
+// Configuration
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSoR989ZUpzAWCCDwgJF0mXLyB9qCcX9az8OO9RAex3sGqrWnQ7n76F8_UGP20DfFl/exec';
+const TIMER_SECONDS = 120 * 60; // 2 hours
 
-        // --- DOM Elements ---
-        const startScreen = document.getElementById('start-screen');
-        const studentNameInput = document.getElementById('student-name');
-        const initialApiKeyInput = document.getElementById('initial-api-key');
-        const startBtn = document.getElementById('start-btn');
-        const apiError = document.getElementById('api-error');
-        const testContent = document.getElementById('test-content');
-        const bodyContainer = document.getElementById('body-container');
-        
-        const mcqContainer = document.getElementById('mcq-container');
-        const shortContainer = document.getElementById('short-container');
-        const longContainer = document.getElementById('long-container');
-        const testForm = document.getElementById('test-form');
-        const alertBox = document.getElementById('alert-container');
-        const submitBtn = document.getElementById('submit-btn');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const resultsSection = document.getElementById('results-section');
-        const feedbackContainer = document.getElementById('feedback-container');
+// Generated for Sec 2 Digital Literacy Units 1 to 4
+let questions = [
+  // --- SECTION A: MCQ (30 Questions) ---
+  {id:'m1', type:'mcq', unit:'Unit 1', text:'Which number system do computers use natively to store and process information?', options:['Decimal','Binary','Octal','Hexadecimal'], answer:1, marks:1, rationale:'Computers use the binary number system (0s and 1s) because their hardware can only understand two electronic states: on (presence of current) or off (absence of current).'},
+  {id:'m2', type:'mcq', unit:'Unit 1', text:'What is the smallest unit of data in a computer?', options:['Byte','Bit','Pixel','Digit'], answer:1, marks:1, rationale:'A bit (short for binary digit) is the absolute smallest unit of data in a computer, representing a single 0 or 1. Eight bits grouped together form a byte.'},
+  {id:'m3', type:'mcq', unit:'Unit 1', text:'What is the denary equivalent of the binary number 1001?', options:['7','8','9','10'], answer:2, marks:1, rationale:'Using place values from right to left (1, 2, 4, 8): (1×8) + (0×4) + (0×2) + (1×1) = 8 + 0 + 0 + 1 = 9.'},
+  {id:'m4', type:'mcq', unit:'Unit 1', text:'Which character encoding standard uses 7 bits and can represent 128 characters?', options:['ASCII','Extended ASCII','Unicode','Binary'], answer:0, marks:1, rationale:'Standard ASCII uses 7 bits to represent 128 different characters, including uppercase/lowercase English letters, numbers, and symbols.'},
+  {id:'m5', type:'mcq', unit:'Unit 1', text:'Which standard is best suited for supporting text in multiple languages worldwide, including emojis?', options:['ASCII','Extended ASCII','Unicode','ANSI'], answer:2, marks:1, rationale:'Unicode uses 8 to 32 bits per character, allowing it to represent over a million characters, making it perfect for global scripts, alphabets, and emojis.'},
+  {id:'m6', type:'mcq', unit:'Unit 1', text:'What is a digital image made up of?', options:['Sound waves','Vectors','Pixels','Continuous forms'], answer:2, marks:1, rationale:'Unlike continuous analogue images, digital images are broken down into a grid of tiny squares called pixels (picture elements), each assigned a binary color code.'},
+  {id:'m7', type:'mcq', unit:'Unit 1', text:'If an image has a colour depth of 2 bits, how many colours can it display?', options:['2','4','8','16'], answer:1, marks:1, rationale:'Colour depth determines the number of combinations. 2 bits per pixel means 2² = 4 possible combinations (e.g., 00, 01, 10, 11), meaning 4 colors.'},
+  {id:'m8', type:'mcq', unit:'Unit 1', text:'Which type of graphic uses mathematical formulae and does not lose quality when enlarged?', options:['Bitmap','Raster','Vector','JPEG'], answer:2, marks:1, rationale:'Vector graphics are created using mathematical formulae that define shapes, lines, and curves. Because they aren\'t grid-based pixels, they scale perfectly without getting blurry.'},
+  {id:'m9', type:'mcq', unit:'Unit 1', text:'What determines the loudness of a sound wave?', options:['Amplitude','Pitch','Sample rate','Bit depth'], answer:0, marks:1, rationale:'The amplitude (height of the crest/trough) of a sound wave determines its loudness. Taller waves result in louder sounds.'},
+  {id:'m10', type:'mcq', unit:'Unit 2', text:'Which of the following describes a "house style" in business communication?', options:['A casual tone used in internal emails','Consistent formatting, logos, and colours','The architectural design of an office','An automated reply system'], answer:1, marks:1, rationale:'A "house style" is a consistent set of formatting rules (logos, fonts, color schemes) companies use across documents to maintain a professional, recognizable brand image.'},
+  {id:'m11', type:'mcq', unit:'Unit 2', text:'Which business document is best for officially announcing a new product to the media?', options:['Memo','Newsletter','Press Release','Annual Report'], answer:2, marks:1, rationale:'A Press Release is specifically formatted as an official announcement sent to media outlets to share major news, product launches, or events.'},
+  {id:'m12', type:'mcq', unit:'Unit 2', text:'In document templates, what are "[Date]" or "[Event name]" examples of?', options:['Watermarks','Placeholders','Hyperlinks','Formatting errors'], answer:1, marks:1, rationale:'Placeholders are temporary text or symbols in a template that indicate where specific, customized information needs to be typed before sending.'},
+  {id:'m13', type:'mcq', unit:'Unit 3', text:'Which type of network connects personal devices within a short range (up to 10 metres)?', options:['LAN','MAN','WAN','PAN'], answer:3, marks:1, rationale:'A Personal Area Network (PAN) connects nearby personal devices, typically via Bluetooth or USB, for tasks like connecting wireless headphones to a smartphone.'},
+  {id:'m14', type:'mcq', unit:'Unit 3', text:'Which wired transmission method uses light signals and provides very high-speed communication?', options:['Coaxial cables','Twisted pair cables','Fibre optic cables','Bluetooth'], answer:2, marks:1, rationale:'Fibre optic cables use thin glass or plastic strands to transmit data as rapid pulses of light, making them much faster and less prone to interference than electrical copper cables.'},
+  {id:'m15', type:'mcq', unit:'Unit 3', text:'What is a key disadvantage of wireless networks compared to wired networks?', options:['Higher installation cost','Lack of mobility','More susceptible to interference and hacking','Requires drilling through walls'], answer:2, marks:1, rationale:'Wireless signals travel through the air, meaning they can be disrupted by physical obstacles or other signals (interference) and can be intercepted by hackers if not properly secured.'},
+  {id:'m16', type:'mcq', unit:'Unit 3', text:'Which error detection method sends a copy of the received data back to the sender?', options:['Parity Check','Checksum','Echo Check','Deep Packet Inspection'], answer:2, marks:1, rationale:'In an Echo Check, the receiving device literally "echoes" the data back to the sender. The sender compares it to the original to ensure no errors occurred during transmission.'},
+  {id:'m17', type:'mcq', unit:'Unit 3', text:'What is the primary function of a firewall?', options:['To remove viruses from files','To block harmful traffic between trusted and untrusted networks','To encrypt emails','To detect spyware'], answer:1, marks:1, rationale:'A firewall acts as a security barrier, following a set of rules to filter and block harmful data packets from untrusted external networks (like the internet) from entering a trusted internal network.'},
+  {id:'m18', type:'mcq', unit:'Unit 3', text:'Which type of malware locks files and demands payment to unlock them?', options:['Trojan','Spyware','Worm','Ransomware'], answer:3, marks:1, rationale:'Ransomware maliciously encrypts a user\'s files or locks their system entirely, displaying a message demanding a financial ransom in exchange for the decryption key.'},
+  {id:'m19', type:'mcq', unit:'Unit 4', text:'What does the Boolean operator "AND" do in an online search?', options:['Excludes a term','Finds variations of a word','Shows results that include both terms','Searches only within a specific website'], answer:2, marks:1, rationale:'The "AND" operator narrows down a search by strictly requiring that both of the specified keywords exist in the search results (e.g., "climate AND energy").'},
+  {id:'m20', type:'mcq', unit:'Unit 4', text:'What is metadata?', options:['A type of computer virus','Data that describes how, when, and by whom a file was created','The physical hardware of a server','A secure encryption key'], answer:1, marks:1, rationale:'Metadata is "data about data". For example, the metadata of a photo includes the timestamp, geographic location, and camera settings used when the photo was taken.'},
+  {id:'m21', type:'mcq', unit:'Unit 4', text:'In the CRAAP test for evaluating sources, what does the "C" stand for?', options:['Credibility','Currency','Capability','Clarity'], answer:1, marks:1, rationale:'The "C" stands for Currency, which prompts you to ask if the information is recent and updated enough for your topic.'},
+  {id:'m22', type:'mcq', unit:'Unit 4', text:'What is the term for a headline designed to attract attention and force clicks, often lacking real facts?', options:['Phishing','Clickbait','Metadata','Podcast'], answer:1, marks:1, rationale:'Clickbait refers to sensational, exaggerated, or misleading headlines specifically designed to entice users into clicking a link, regardless of the actual content\'s quality.'},
+  {id:'m23', type:'mcq', unit:'Unit 4', text:'Which communication method is best for urgent matters requiring immediate, two-way clarification?', options:['Email','Newsletter','Voice call','Discussion forum'], answer:2, marks:1, rationale:'For urgent updates where immediate questions might arise, a voice or video call is best because it allows for real-time, instantaneous back-and-forth communication.'},
+  {id:'m24', type:'mcq', unit:'Unit 4', text:'What is "cloud technology" primarily used for in the workplace?', options:['Weather forecasting','Storing and accessing files over the internet','Cooling down server rooms','Printing physical documents'], answer:1, marks:1, rationale:'Cloud technology allows workers to store files and run software applications on remote servers accessed via the internet, enabling remote work and real-time collaboration.'},
+  {id:'m25', type:'mcq', unit:'Unit 4', text:'What does IoT stand for?', options:['Internal Operational Tech','Internet of Things','Information Output Transfer','Intelligent Office Tools'], answer:1, marks:1, rationale:'The Internet of Things (IoT) refers to physical, everyday devices (like thermostats, smartwatches, or refrigerators) that connect to the internet to collect and share data.'},
+  {id:'m26', type:'mcq', unit:'Unit 4', text:'Which is a significant privacy risk associated with IoT devices?', options:['They consume too much electricity','They can forget how to function manually','They constantly collect data about daily routines','They require complex programming'], answer:2, marks:1, rationale:'Because IoT devices are embedded in homes and wearables, they constantly track sensitive habits, health stats, and locations, which could be exploited if hacked or sold to advertisers.'},
+  {id:'m27', type:'mcq', unit:'Unit 4', text:'If you share a document and only want the person to provide feedback without altering the text, which permission should you use?', options:['Viewer','Commenter','Editor','Owner'], answer:1, marks:1, rationale:'The "Commenter" role allows users to read the document and leave feedback notes or suggestions in the margins, but they cannot directly modify the core text itself.'},
+  {id:'m28', type:'mcq', unit:'Unit 4', text:'Which of these is considered an unsafe practice for an online username?', options:['Using a neutral name','Using your real full name and birth year','Using numbers and symbols','Keeping it unique per platform'], answer:1, marks:1, rationale:'Using your real name and birth year reveals Personally Identifiable Information (PII) to strangers, making you vulnerable to tracking, identity theft, or unwanted contact.'},
+  {id:'m29', type:'mcq', unit:'Unit 4', text:'What does the padlock icon next to a URL (HTTPS) indicate?', options:['The website is free','The connection is encrypted and safe','The website has no ads','The website is owned by the government'], answer:1, marks:1, rationale:'The padlock and "HTTPS" protocol mean the connection is encrypted, ensuring that data passed between your browser and the website (like passwords) cannot be easily intercepted.'},
+  {id:'m30', type:'mcq', unit:'Unit 4', text:'What does Two-Factor Authentication (2FA) do?', options:['Doubles the internet speed','Requires two different types of verification to log in','Allows two users to share one account','Encrypts your hard drive twice'], answer:1, marks:1, rationale:'2FA adds an extra layer of security. Even if a hacker guesses your password (factor 1), they still need a secondary proof, like a fingerprint or a code texted to your phone (factor 2), to access your account.'},
 
-        // --- Gatekeeper Logic ---
-        startBtn.addEventListener('click', () => {
-            const key = initialApiKeyInput.value.trim();
-            const name = studentNameInput.value.trim();
+  // --- SECTION B: Short Answer (25 Questions) ---
+  {id:'s1', type:'short', unit:'Unit 1', text:'Define a positional number system and state the base of the binary system.', marks:2, rubric:'Award 1 mark for stating that the value of each digit depends on its position. Award 1 mark for stating the base is 2.'},
+  {id:'s2', type:'short', unit:'Unit 1', text:'Explain the main difference between standard ASCII and Unicode in terms of representation.', marks:2, rubric:'Award 1 mark for stating ASCII uses 7-8 bits for English characters/symbols. Award 1 mark for stating Unicode uses up to 32 bits and can represent international languages and emojis.'},
+  {id:'s3', type:'short', unit:'Unit 1', text:'Briefly explain how an analogue image is converted into a digital image.', marks:2, rubric:'Award 1 mark for mentioning the image is broken down into a grid. Award 1 mark for mentioning pixels or binary codes assigned to represent colors.'},
+  {id:'s4', type:'short', unit:'Unit 1', text:'What is "colour depth" and how does it affect the file size of an image?', marks:2, rubric:'Award 1 mark for defining colour depth (number of bits per pixel). Award 1 mark for stating higher colour depth increases file size.'},
+  {id:'s5', type:'short', unit:'Unit 1', text:'What is the difference between amplitude and pitch in a sound wave?', marks:2, rubric:'Award 1 mark for stating amplitude determines loudness/height of the wave. Award 1 mark for stating pitch is how high or low the sound is (frequency of crests).'},
+  {id:'s6', type:'short', unit:'Unit 2', text:'Define the term "house style" and give two examples of what it includes.', marks:2, rubric:'Award 1 mark for defining it as consistent formatting for a professional image. Award 1 mark for providing examples (logos, colors, fonts).'},
+  {id:'s7', type:'short', unit:'Unit 2', text:'Why is it important to consider the recipient\'s culture when using emojis in business communication?', marks:2, rubric:'Award 1 mark for stating emojis can mean different things in different cultures. Award 1 mark for noting it might seem unprofessional or offensive depending on the audience.'},
+  {id:'s8', type:'short', unit:'Unit 3', text:'State two differences between a Local Area Network (LAN) and a Wide Area Network (WAN).', marks:2, rubric:'Award 1 mark for stating LAN covers a small area (building/school) while WAN covers large areas (cities/countries). Award 1 mark for mentioning differences in ownership or speed/technology.'},
+  {id:'s9', type:'short', unit:'Unit 3', text:'Explain the difference in how data is transmitted through copper cables versus fibre optic cables.', marks:2, rubric:'Award 1 mark for stating copper uses electrical signals. Award 1 mark for stating fibre optic uses light signals.'},
+  {id:'s10', type:'short', unit:'Unit 3', text:'What is an "Echo Check" in data transmission?', marks:2, rubric:'Award 1 mark for stating the receiver sends a copy of data back to the sender. Award 1 mark for stating the sender compares them to check for errors.'},
+  {id:'s11', type:'short', unit:'Unit 3', text:'How does a parity check help detect errors in data transmission?', marks:2, rubric:'Award 1 mark for mentioning adding a parity bit to make the number of 1s even or odd. Award 1 mark for stating the receiver checks if the parity matches the expected rule.'},
+  {id:'s12', type:'short', unit:'Unit 3', text:'What is the difference between a Virus and a Worm?', marks:2, rubric:'Award 1 mark for stating viruses spread through downloaded files/user action. Award 1 mark for stating worms copy and spread themselves across networks without user action.'},
+  {id:'s13', type:'short', unit:'Unit 3', text:'Describe how a packet filtering firewall operates.', marks:2, rubric:'Award 1 mark for stating it examines incoming/outgoing data packets. Award 1 mark for stating it allows or blocks them based on predefined rules (like IP addresses).'},
+  {id:'s14', type:'short', unit:'Unit 3', text:'What is the specific function of Anti-spyware software?', marks:2, rubric:'Award 1 mark for stating it detects and removes spyware/keyloggers. Award 1 mark for mentioning it protects user privacy and prevents unauthorized data collection.'},
+  {id:'s15', type:'short', unit:'Unit 4', text:'Explain how the use of quotation marks changes the results of a search engine query.', marks:2, rubric:'Award 1 mark for stating it searches for the exact phrase. Award 1 mark for stating the words must appear in that exact order.'},
+  {id:'s16', type:'short', unit:'Unit 4', text:'What does "site:.edu" do when added to an internet search?', marks:2, rubric:'Award 1 mark for stating it filters search results. Award 1 mark for stating it only shows results from educational (.edu) domains.'},
+  {id:'s17', type:'short', unit:'Unit 4', text:'What is "metadata" in the context of taking a digital photograph?', marks:2, rubric:'Award 1 mark for stating it is data about the data. Award 1 mark for examples: location, date, time, camera settings.'},
+  {id:'s18', type:'short', unit:'Unit 4', text:'In the RAVEN method for evaluating authors, what do "Vested interest" and "Expertise" mean?', marks:2, rubric:'Award 1 mark for stating Vested Interest means the author gains something if you believe them. Award 1 mark for stating Expertise means the author has relevant qualifications or knowledge.'},
+  {id:'s19', type:'short', unit:'Unit 4', text:'Give two signs (red flags) that a website might be untrustworthy.', marks:2, rubric:'Award 1 mark each for two valid signs (e.g., no author listed, not updated recently, clickbait headlines, no HTTPS, many pop-ups).'},
+  {id:'s20', type:'short', unit:'Unit 4', text:'Why might sending a formal email be a better choice than a text message for a business complaint?', marks:2, rubric:'Award 1 mark for mentioning formal emails convey a professional, serious tone. Award 1 mark for noting it keeps a formal record and allows for detailed explanations without slang.'},
+  {id:'s21', type:'short', unit:'Unit 4', text:'Describe two ways cloud technology has changed the modern workplace.', marks:2, rubric:'Award 1 mark each for two valid points (e.g., remote access from anywhere, real-time collaboration on documents, automatic backups, less reliance on physical offices).'},
+  {id:'s22', type:'short', unit:'Unit 4', text:'What is the Internet of Things (IoT)? Give one example.', marks:2, rubric:'Award 1 mark for defining IoT as physical devices connected to the internet sharing data. Award 1 mark for a valid example (e.g., smartwatch, smart thermostat).'},
+  {id:'s23', type:'short', unit:'Unit 4', text:'State one convenience benefit and one privacy risk of using IoT devices at home.', marks:2, rubric:'Award 1 mark for a convenience benefit (automation, insights). Award 1 mark for a privacy risk (data tracking, hacking cameras/mics).'},
+  {id:'s24', type:'short', unit:'Unit 4', text:'Why is it dangerous to use the same username and password across multiple platforms?', marks:2, rubric:'Award 1 mark for stating it makes tracking your online presence easy. Award 1 mark for noting that if one account is hacked, all others become vulnerable.'},
+  {id:'s25', type:'short', unit:'Unit 4', text:'What does it mean to grant someone "Editor" file permissions?', marks:2, rubric:'Award 1 mark for stating they have access to view and comment. Award 1 mark for stating they have full rights to make changes to the actual content.'},
 
-            if (!name) {
-                apiError.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Please enter your name.';
-                apiError.classList.remove('hidden');
-                return;
-            }
+  // --- SECTION C: Long Answer (10 Questions) ---
+  {id:'l1', type:'long', unit:'Unit 1', text:'Explain the difference between bitmap and vector graphics. Include how they handle scaling and give an example of what each is best used for.', marks:5, rubric:'Award up to 5 marks: Bitmap uses a grid of pixels (1); Vector uses mathematical formulae/shapes (1); Bitmap becomes blurry/pixelated when enlarged (1); Vector scales infinitely without losing quality (1); Examples: Bitmap for photos, Vector for logos/fonts (1).'},
+  {id:'l2', type:'long', unit:'Unit 3', text:'Discuss the advantages and disadvantages of using a wireless network (WLAN) compared to a wired network (LAN) in a school environment.', marks:5, rubric:'Award up to 5 marks. Advantages: Mobility for students/devices (1), easier/cheaper to install without cables (1). Disadvantages: Slower speeds/more delays (1), prone to interference from walls/devices (1), higher security risks/hacking (1).'},
+  {id:'l3', type:'long', unit:'Unit 3', text:'A company is facing cyber threats. Explain what firewalls, antivirus, and anti-spyware software are, and detail how they work together to protect the company\'s network.', marks:5, rubric:'Award up to 5 marks. Firewall blocks unauthorized traffic between internet and network (1). Antivirus scans, detects, and removes known malware/viruses (1). Anti-spyware prevents hidden tracking of user data/keystrokes (1). Working together: Firewall acts as the front door, while AV and Anti-spyware catch threats that slip inside (e.g., via emails) ensuring comprehensive security (2).'},
+  {id:'l4', type:'long', unit:'Unit 4', text:'Explain the CRAAP test. Detail what each letter stands for and how a student should apply it when researching information online.', marks:5, rubric:'Award up to 5 marks for identifying: Currency - Is it recent? (1). Relevance - Does it fit the topic? (1). Authority - Who wrote it? (1). Accuracy - Is it factual/supported by evidence? (1). Purpose - Is the intent to inform or sell/persuade? (1).'},
+  {id:'l5', type:'long', unit:'Unit 2', text:'Discuss the impact of informal communication (like tone, emojis, and GIFs) in business documents. Provide examples of when they are appropriate and when they can damage a company\'s reputation.', marks:5, rubric:'Award up to 5 marks. Impact: Sets mood, can cause misunderstandings due to lack of voice cues (1). Appropriate: Friendly internal team chats, casual reminders (1). Inappropriate: Formal reports, serious customer complaints, official press releases (1). Damage: Using slang/emojis in complaints seems disrespectful/unprofessional, causing loss of trust/reputation (2).'},
+  {id:'l6', type:'long', unit:'Unit 1', text:'Describe the process of converting sound into digital data. Mention the roles of the microphone, the Analogue-to-Digital Converter (ADC), sample rate, and bit depth.', marks:5, rubric:'Award up to 5 marks. Microphone converts sound waves to analogue electrical signals (1). ADC samples the signal at regular intervals and converts to binary (1). Sample rate is the number of samples taken per second (higher = more accurate) (1). Bit depth determines the number of amplitude levels recorded per sample (1). This allows the continuous wave to be stored as 0s and 1s (1).'},
+  {id:'l7', type:'long', unit:'Unit 4', text:'Explain how search engines work using web crawlers and indexes. Then, describe three advanced search techniques (e.g., Boolean operators, truncation) that can help narrow down search results.', marks:5, rubric:'Award up to 5 marks. Crawlers scan billions of pages collecting keywords/links (1), storing them in massive databases called indexes to retrieve fast results (1). Techniques (1 mark each for 3): Boolean (AND/OR/NOT) refines logic; Quotation marks (" ") search exact phrases; Truncation (*) finds word variations; Filters (site:/filetype:) narrow specific domains/files.'},
+  {id:'l8', type:'long', unit:'Unit 4', text:'Discuss the concept of \'Internet of Things\' (IoT) in the context of smart homes. Explain two benefits it brings and discuss three potential risks associated with IoT adoption.', marks:5, rubric:'Award up to 5 marks. IoT: Everyday physical devices connected to the internet sharing data (1). Benefits: Automation, Convenience, Energy Efficiency (max 2 marks for 2 benefits). Risks: Data tracking/privacy loss, Hacking/security flaws, Overdependence, Energy waste constantly running (max 2 marks for identifying/explaining 2-3 risks).'},
+  {id:'l9', type:'long', unit:'Unit 4', text:'A student is working on a collaborative school project online. Propose a comprehensive set of digital citizenship rules they should follow to protect their personal identity, files, and wellbeing.', marks:5, rubric:'Award up to 5 marks for mentioning: Use strong passwords and 2FA (1). Don\'t use real names/school in public usernames (1). Set correct file permissions (Viewer/Editor) (1). Avoid clicking unknown links/phishing (1). Manage screen time for mental wellbeing / respect others\' digital spaces (1).'},
+  {id:'l10', type:'long', unit:'Unit 3', text:'Compare the four types of computer networks: PAN, LAN, MAN, and WAN. Describe their typical geographical coverage and provide a real-world example for each.', marks:5, rubric:'Award up to 5 marks. PAN: Personal range (~10m), e.g., phone to Bluetooth headphones (1). LAN: Single building/school, e.g., school computer lab (1). MAN: City/large campus, e.g., city public Wi-Fi or connected university buildings (1). WAN: Continents/global, e.g., the Internet or international bank branches (1). Overall comparative clarity (1).'}
+];
 
-            if (!key) {
-                apiError.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> API Key is required to grade your answers.';
-                apiError.classList.remove('hidden');
-                return;
-            }
+// -----------------------------------------------------------------------------
+// Application Logic
+// -----------------------------------------------------------------------------
 
-            // Accept key and start
-            activeApiKey = key;
-            studentName = name;
-            startScreen.style.display = 'none';
-            testContent.classList.remove('hidden');
-            bodyContainer.classList.remove('overflow-hidden'); // Allow scrolling
-            renderTest();
-        });
+let studentName = '', answers = {}, timerInterval = null, secondsLeft = TIMER_SECONDS;
 
-        // --- Render Test ---
-        function renderTest() {
-            // Render MCQs
-            testData.mcqs.forEach((q, index) => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-xl shadow-sm border border-gray-200";
-                
-                let optionsHtml = q.options.map((opt, oIdx) => `
-                    <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-blue-50 cursor-pointer transition-colors">
-                        <input type="radio" name="mcq-${index}" value="${oIdx}" class="text-blue-600 focus:ring-blue-500 w-4 h-4">
-                        <span class="text-gray-700">${opt}</span>
-                    </label>
-                `).join('');
+// Key management
+window.addEventListener('DOMContentLoaded', () => {
+  const savedKey = localStorage.getItem('igcse_gapi_key');
+  if(savedKey) {
+    window._apiKey = savedKey;
+    const inp = document.getElementById('apiKeyInput');
+    if(inp) inp.placeholder = 'API key saved ✓ (leave blank to keep)';
+  }
+});
 
-                card.innerHTML = `
-                    <p class="font-bold text-gray-800 mb-4"><span class="text-blue-600 mr-2">${index + 1}.</span>${q.q}</p>
-                    <div class="space-y-2">${optionsHtml}</div>
-                `;
-                mcqContainer.appendChild(card);
-            });
+function startTest() {
+  const keyInput = document.getElementById('apiKeyInput').value.trim();
+  if(keyInput) {
+    window._apiKey = keyInput;
+    localStorage.setItem('igcse_gapi_key', keyInput);
+  } else {
+    window._apiKey = localStorage.getItem('igcse_gapi_key') || '';
+  }
+  
+  if(!window._apiKey) {
+    showNameError('Please provide the Gemini API key to begin.');
+    return;
+  }
 
-            // Render Short Answer
-            testData.short.forEach((q, index) => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-xl shadow-sm border border-gray-200";
-                card.innerHTML = `
-                    <label class="block font-bold text-gray-800 mb-3" for="short-${index}"><span class="text-blue-600 mr-2">Q${index + 1}.</span>${q}</label>
-                    <textarea id="short-${index}" name="short-${index}" rows="2" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800" placeholder="Your answer..."></textarea>
-                `;
-                shortContainer.appendChild(card);
-            });
+  const nameInput = document.getElementById('studentName').value.trim();
+  if(!nameInput) {
+    showNameError('Please enter your full name.');
+    return;
+  }
 
-            // Render Long Answer
-            testData.long.forEach((q, index) => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-xl shadow-sm border border-gray-200";
-                card.innerHTML = `
-                    <label class="block font-bold text-gray-800 mb-3" for="long-${index}"><span class="text-blue-600 mr-2">Essay ${index + 1}.</span>${q}</label>
-                    <textarea id="long-${index}" name="long-${index}" rows="5" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800" placeholder="Write a detailed response..."></textarea>
-                `;
-                longContainer.appendChild(card);
-            });
-        }
+  studentName = nameInput;
+  document.getElementById('nameError').style.display = 'none';
+  document.getElementById('headerName').textContent = studentName;
+  
+  const totalMarks = questions.reduce((a, q) => a + q.marks, 0);
+  document.getElementById('marksInfo').textContent = `${totalMarks} marks total`;
+  
+  renderQuestions();
+  startTimer();
+  showScreen('screen-test');
+}
 
-        // --- Alert Utility ---
-        function showAlert(msg, isError = true) {
-            alertBox.textContent = msg;
-            alertBox.className = `mb-6 p-4 rounded-lg text-sm font-medium ${isError ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-green-100 text-green-800 border border-green-200'}`;
-            alertBox.classList.remove('hidden');
-            testContent.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+function showNameError(msg) {
+  const err = document.getElementById('nameError');
+  err.textContent = msg;
+  err.style.display = 'block';
+}
 
-        // --- Handle Submission ---
-        testForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            alertBox.classList.add('hidden');
+function startTimer() {
+  secondsLeft = TIMER_SECONDS;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    updateTimerDisplay();
+    if(secondsLeft <= 0) {
+      clearInterval(timerInterval);
+      autoSubmit();
+    }
+    if(secondsLeft <= 600) { // Last 10 minutes
+      document.getElementById('timerDisplay').classList.add('warning');
+    }
+  }, 1000);
+}
 
-            // Collect Data
-            const formData = new FormData(testForm);
-            
-            // 1. Grade MCQs Locally
-            let mcqScore = 0;
-            const mcqResults = [];
-            testData.mcqs.forEach((q, idx) => {
-                const userAns = parseInt(formData.get(`mcq-${idx}`));
-                const isCorrect = userAns === q.answer;
-                if (isCorrect) mcqScore++;
-                mcqResults.push({
-                    q: q.q,
-                    user: isNaN(userAns) ? "No answer" : q.options[userAns],
-                    correct: q.options[q.answer],
-                    explanation: q.explanation,
-                    isCorrect
-                });
-            });
+function updateTimerDisplay() {
+  const h = Math.floor(secondsLeft / 3600);
+  const m = Math.floor((secondsLeft % 3600) / 60);
+  const s = secondsLeft % 60;
+  document.getElementById('timerDisplay').textContent = 
+    (h > 0 ? h + ':' : '') + 
+    (m < 10 && h > 0 ? '0' : '') + m + ':' + 
+    (s < 10 ? '0' : '') + s;
+}
 
-            // 2. Collect Written Answers for AI
-            const shortAnswers = testData.short.map((q, idx) => ({
-                id: idx,
-                question: q,
-                answer: formData.get(`short-${idx}`)
-            }));
+function autoSubmit() {
+  const status = document.getElementById('statusMsg');
+  status.style.display = 'block';
+  status.textContent = '⏰ Time is up! Submitting your answers...';
+  document.getElementById('confirmBar').style.display = 'none';
+  document.getElementById('submitBtn').disabled = true;
+  submitTest();
+}
 
-            const longAnswers = testData.long.map((q, idx) => ({
-                id: idx,
-                question: q,
-                answer: formData.get(`long-${idx}`)
-            }));
+function renderQuestions() {
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+  
+  const mcqs = questions.filter(q => q.type === 'mcq');
+  const sas = questions.filter(q => q.type === 'short');
+  const las = questions.filter(q => q.type === 'long');
 
-            // UI State
-            submitBtn.classList.add('hidden');
-            loadingIndicator.classList.remove('hidden');
-            loadingIndicator.classList.add('flex');
-            
-            try {
-                // Prepare Gemini Prompt
-                const systemPrompt = `You are an expert Computing and Digital Literacy teacher grading an exam for Sec 2 students based on Cambridge Lower Secondary standards.
-You will receive arrays of short-answer and long-answer responses.
-Strict Rules:
-1. Grade short answers out of 2 marks.
-2. Grade long answers out of 5 marks.
-3. Be fair but strict. Award partial marks if concepts are partially correct.
-4. Provide concise feedback (1-3 sentences) per question explaining why marks were awarded and providing the correct concept if they missed it.
-5. If an answer is blank or empty, give 0 marks and briefly provide the correct concept.
-6. YOU MUST RETURN ONLY A VALID JSON OBJECT matching this schema perfectly:
+  const addSectionHeader = (title, subtitle) => {
+    const div = document.createElement('div');
+    div.className = 'section-head';
+    div.innerHTML = `<h2>${title}</h2><p>${subtitle}</p>`;
+    container.appendChild(div);
+  };
+
+  addSectionHeader(`Part 1 — Multiple Choice (${mcqs.length} questions)`, 'Select the single best answer for each question. You may skip questions.');
+  mcqs.forEach((q, i) => container.appendChild(buildMCQ(q, i + 1)));
+
+  addSectionHeader(`Part 2 — Short Answer (${sas.length} questions)`, 'Write concise answers in complete sentences. You may skip questions.');
+  sas.forEach((q, i) => container.appendChild(buildTextQ(q, mcqs.length + i + 1, 'sa-area')));
+
+  addSectionHeader(`Part 3 — Long Answer (${las.length} questions)`, 'Provide detailed, structured responses covering all key concepts. You may skip questions.');
+  las.forEach((q, i) => container.appendChild(buildTextQ(q, mcqs.length + sas.length + i + 1, 'la-area')));
+
+  updateProgress();
+}
+
+function buildMCQ(q, num) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  const letters = ['A', 'B', 'C', 'D'];
+  
+  div.innerHTML = `
+    <div class="q-num">Question ${num} <span class="q-unit">${q.unit}</span> <span class="marks-badge">${q.marks} mark</span></div>
+    <div class="q-text">${q.text}</div>
+    <div class="mcq-options" id="opts_${q.id}"></div>
+  `;
+  
+  const optsContainer = div.querySelector('.mcq-options');
+  q.options.forEach((opt, i) => {
+    const lbl = document.createElement('div');
+    lbl.className = 'mcq-opt';
+    lbl.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    lbl.addEventListener('click', () => {
+      answers[q.id] = i;
+      div.querySelectorAll('.mcq-opt').forEach(l => l.classList.remove('selected'));
+      lbl.classList.add('selected');
+      updateProgress();
+    });
+    optsContainer.appendChild(lbl);
+  });
+  return div;
+}
+
+function buildTextQ(q, num, cls) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = `
+    <div class="q-num">Question ${num} <span class="q-unit">${q.unit}</span> <span class="marks-badge">${q.marks} marks</span></div>
+    <div class="q-text">${q.text}</div>
+    <textarea id="ans_${q.id}" class="${cls}" placeholder="Type your answer here... (Optional)"></textarea>
+    <div class="char-hint" id="hint_${q.id}">0 characters</div>
+  `;
+  
+  const ta = div.querySelector('textarea');
+  
+  ta.addEventListener('paste', (e) => {
+    e.preventDefault();
+    alert('Pasting is disabled for this assessment. Please type your answer manually.');
+  });
+
+  ta.addEventListener('input', () => {
+    answers[q.id] = ta.value;
+    document.getElementById(`hint_${q.id}`).textContent = `${ta.value.length} characters`;
+    updateProgress();
+  });
+  
+  return div;
+}
+
+function updateProgress() {
+  const answeredCount = questions.filter(q => answers[q.id] !== undefined && answers[q.id] !== '').length;
+  const pct = Math.round((answeredCount / questions.length) * 100);
+  document.getElementById('progressFill').style.width = `${pct}%`;
+  document.getElementById('progressLabel').textContent = `${answeredCount} of ${questions.length} answered`;
+}
+
+function confirmSubmit() {
+  const unanswered = questions.filter(q => answers[q.id] === undefined || answers[q.id] === '').length;
+  const bar = document.getElementById('confirmBar');
+  const msg = document.getElementById('confirmMsg');
+  
+  if (unanswered > 0) {
+    msg.innerHTML = `⚠️ You have <strong>${unanswered} unanswered</strong> question(s). Are you sure you want to submit?`;
+  } else {
+    msg.innerHTML = 'All questions answered. Ready to submit? You cannot change your answers after this point.';
+  }
+  bar.style.display = 'flex';
+  bar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function cancelSubmit() {
+  document.getElementById('confirmBar').style.display = 'none';
+}
+
+async function submitTest() {
+  clearInterval(timerInterval);
+  document.getElementById('confirmBar').style.display = 'none';
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Grading...';
+  
+  const status = document.getElementById('statusMsg');
+  const errDiv = document.getElementById('errorMsg');
+  errDiv.style.display = 'none';
+  status.style.display = 'block';
+  status.innerHTML = '<span class="marking-spinner"></span> AI is grading written responses. Please do not close this window...';
+
+  try {
+    const result = await markAll();
+    status.style.display = 'none';
+    showResults(result);
+    logToSheet(result);
+  } catch(e) {
+    status.style.display = 'none';
+    errDiv.style.display = 'block';
+    errDiv.textContent = 'Submission Error:\n' + e.message;
+    btn.disabled = false;
+    btn.textContent = 'Retry Submission';
+  }
+}
+
+async function markAll() {
+  // Score MCQs locally
+  let mcqScore = 0, mcqTotal = 0, mcqDetails = [];
+  questions.filter(q => q.type === 'mcq').forEach(q => {
+    mcqTotal += q.marks;
+    const correct = answers[q.id] === q.answer;
+    if (correct) mcqScore += q.marks;
+    mcqDetails.push({
+      id: q.id,
+      text: q.text,
+      chosen: q.options[answers[q.id]] || 'No answer',
+      correct: q.options[q.answer],
+      rationale: q.rationale,
+      isCorrect: correct,
+      score: correct ? q.marks : 0,
+      max: q.marks
+    });
+  });
+
+  // Prepare written responses for Gemini
+  const openQs = questions.filter(q => q.type === 'short' || q.type === 'long');
+  const openTotal = openQs.reduce((a, q) => a + q.marks, 0);
+
+  const prompt = `You are a strict but fair Computing and Digital Literacy teacher grading an exam for Sec 2 students. Grade the following student responses against the provided rubrics. Keep feedback concise, supportive, and direct.
+
+Student: ${studentName}
+
+${openQs.map((q, i) => `Question ID: "${q.id}"
+Type: ${q.type.toUpperCase()} (Max Marks: ${q.marks})
+Question: ${q.text}
+Rubric: ${q.rubric}
+Student Answer: "${(answers[q.id] || '').slice(0, 1000)}"
+`).join('\n---\n')}
+
+Return ONLY valid JSON in this exact structure. Ensure every Question ID is included in the array. If an answer is blank, give 0 marks and briefly provide the correct concept.
 {
-  "short_results": [ { "id": number, "score": number, "maxScore": 2, "feedback": "string" } ],
-  "long_results": [ { "id": number, "score": number, "maxScore": 5, "feedback": "string" } ]
+  "questions": [
+    {"id": "s1", "score": 2, "feedback": "Brief rationale"},
+    {"id": "l1", "score": 0, "feedback": "Brief rationale"}
+  ],
+  "overallFeedback": "2-3 sentences of overall encouragement and areas to review."
 }`;
 
-                const userPrompt = JSON.stringify({
-                    short_answers: shortAnswers,
-                    long_answers: longAnswers
-                });
+  const apiKey = window._apiKey || localStorage.getItem('igcse_gapi_key') || '';
+  if(!apiKey) throw new Error('API Key missing.');
 
-                // Call Gemini API
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${activeApiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: userPrompt }] }],
-                        systemInstruction: { parts: [{ text: systemPrompt }] },
-                        generationConfig: { 
-                            responseMimeType: "application/json",
-                            temperature: 0.2
-                        }
-                    })
-                });
+  let response = null;
+  let rawText = "";
+  let fetchError = "";
 
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status} - ${response.statusText}. Your API key might be invalid or quota exceeded.`);
-                }
+  // API Fallback Logic: Try standard model, then preview model
+  const models = ['gemini-1.5-flash', 'gemini-2.5-flash-preview-09-2025'];
+  
+  for (const model of models) {
+      try {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  contents: [{ parts: [{ text: prompt }] }],
+                  generationConfig: { temperature: 0.1, response_mime_type: "application/json" }
+              })
+          });
 
-                const result = await response.json();
-                const aiText = result.candidates[0].content.parts[0].text;
-                const gradingData = JSON.parse(aiText);
+          if (res.ok) {
+              response = res;
+              const data = await res.json();
+              rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+              break; 
+          } else {
+              fetchError = `API Error: ${res.status} - Model: ${model}`;
+              if (res.status === 400) {
+                  throw new Error(`API Error 400: Your API key is invalid or rejected. Please verify you are using a standard Gemini API key (starting with "AIza").`);
+              }
+          }
+      } catch (err) {
+          fetchError = err.message;
+          if (err.message.includes("400")) break; 
+      }
+  }
 
-                // Render Results
-                displayResults(mcqScore, mcqResults, gradingData, shortAnswers, longAnswers);
+  if (!response || !response.ok) {
+      throw new Error(fetchError || "Failed to connect to the Gemini API.");
+  }
+  
+  if(!rawText) throw new Error('Received empty response from the grading engine.');
 
-            } catch (err) {
-                showAlert(err.message);
-                submitBtn.classList.remove('hidden');
-                loadingIndicator.classList.add('hidden');
-                loadingIndicator.classList.remove('flex');
-            }
-        });
+  let gradingData;
+  try {
+    gradingData = JSON.parse(rawText);
+  } catch(e) {
+    throw new Error('Failed to parse AI grading data.');
+  }
 
-        function displayResults(mcqScore, mcqResults, gradingData, shortAnswers, longAnswers) {
-            // Hide Form, Show Results
-            testForm.classList.add('hidden');
-            resultsSection.classList.remove('hidden');
-            
-            let shortScore = 0;
-            gradingData.short_results.forEach(r => shortScore += r.score);
-            
-            let longScore = 0;
-            gradingData.long_results.forEach(r => longScore += r.score);
+  let saScore = 0, saTotal = 0, laScore = 0, laTotal = 0, qFeedback = {};
+  
+  gradingData.questions.forEach(r => {
+    const q = openQs.find(x => x.id === r.id);
+    if(!q) return;
+    
+    // Ensure score is treated as a number
+    const score = Number(r.score) || 0;
+    qFeedback[q.id] = { score: score, max: q.marks, feedback: r.feedback };
+    
+    if(q.type === 'short') { saScore += score; saTotal += q.marks; }
+    else { laScore += score; laTotal += q.marks; }
+  });
 
-            const totalScore = mcqScore + shortScore + longScore;
+  return {
+    student: studentName,
+    mcqScore, mcqTotal,
+    saScore, saTotal,
+    laScore, laTotal,
+    total: mcqScore + saScore + laScore,
+    possible: mcqTotal + saTotal + laTotal,
+    overallFeedback: gradingData.overallFeedback,
+    mcqDetails, qFeedback, openQs
+  };
+}
 
-            // Submit results to Google Sheets
-            saveToGoogleSheets(mcqScore, shortScore, longScore, totalScore);
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
 
-            // Update Header Totals
-            document.getElementById('res-mcq').textContent = `${mcqScore} / 30`;
-            document.getElementById('res-short').textContent = `${shortScore} / 50`;
-            document.getElementById('res-long').textContent = `${longScore} / 50`;
-            document.getElementById('res-total').textContent = `${totalScore} / 130`;
+function showResults(r) {
+  showScreen('screen-results');
+  
+  const pct = Math.round((r.total / r.possible) * 100);
+  
+  let badge = { label: 'Needs Revision', bg: 'var(--red-light)', color: 'var(--red)' };
+  if(pct >= 75) badge = { label: 'Distinction', bg: 'var(--green-light)', color: 'var(--green)' };
+  else if(pct >= 60) badge = { label: 'Merit', bg: 'var(--blue-light)', color: 'var(--blue-dark)' };
+  else if(pct >= 50) badge = { label: 'Pass', bg: 'var(--orange-light)', color: '#b84820' };
 
-            feedbackContainer.innerHTML = '';
+  document.getElementById('resultMeta').textContent = `${studentName} • Sec 2 Digital Literacy`;
+  document.getElementById('bigScore').textContent = `${r.total} / ${r.possible}`;
+  document.getElementById('bigPct').textContent = `${pct}%`;
+  
+  const gb = document.getElementById('gradeBadge');
+  gb.textContent = badge.label;
+  gb.style.background = badge.bg;
+  gb.style.color = badge.color;
 
-            // ---------------------------------------------
-            // Section: MCQ Explanations (New Requirement)
-            // ---------------------------------------------
-            const mcqSection = document.createElement('div');
-            mcqSection.innerHTML = `<h4 class="text-xl font-bold text-blue-900 mb-4 mt-2"><i class="fas fa-list-ul mr-2"></i>Multiple Choice Explanations</h4>`;
-            
-            const ul = document.createElement('ul');
-            ul.className = "grid grid-cols-1 md:grid-cols-2 gap-4";
-            
-            mcqResults.forEach((m, idx) => {
-                const borderClass = m.isCorrect ? 'border-green-300' : 'border-red-300';
-                const iconClass = m.isCorrect ? '<i class="fas fa-check text-green-600 mr-2"></i>' : '<i class="fas fa-times text-red-600 mr-2"></i>';
-                
-                ul.innerHTML += `
-                    <li class="bg-white p-5 rounded-xl border-l-4 ${borderClass} shadow-sm">
-                        <p class="font-semibold text-gray-800 mb-2">${idx + 1}. ${m.q}</p>
-                        <div class="text-sm space-y-1 mb-3">
-                            <p class="${m.isCorrect ? 'text-green-700' : 'text-red-700'} font-medium">Your Answer: ${m.user}</p>
-                            ${!m.isCorrect ? `<p class="text-green-700 font-medium">Correct Answer: ${m.correct}</p>` : ''}
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded text-sm text-gray-700 border border-gray-100">
-                            <strong>Explanation:</strong> ${m.explanation}
-                        </div>
-                    </li>`;
-            });
-            mcqSection.appendChild(ul);
-            feedbackContainer.appendChild(mcqSection);
+  document.getElementById('mcqResult').textContent = `${r.mcqScore} / ${r.mcqTotal}`;
+  document.getElementById('saResult').textContent = `${r.saScore} / ${r.saTotal}`;
+  document.getElementById('laResult').textContent = `${r.laScore} / ${r.laTotal}`;
+  
+  document.getElementById('overallFeedback').textContent = r.overallFeedback;
 
-            // ---------------------------------------------
-            // Section: Short Answer Feedback
-            // ---------------------------------------------
-            const shortSection = document.createElement('div');
-            shortSection.innerHTML = `<h4 class="text-xl font-bold text-blue-900 mb-4 mt-10 border-t pt-8"><i class="fas fa-pen-nib mr-2"></i>Short Answer Feedback</h4>`;
-            gradingData.short_results.forEach(res => {
-                const qa = shortAnswers.find(s => s.id === res.id);
-                const color = res.score === 2 ? 'green' : res.score === 1 ? 'yellow' : 'red';
-                shortSection.innerHTML += `
-                    <div class="bg-white p-5 rounded-xl border border-gray-200 mb-4 shadow-sm">
-                        <div class="flex justify-between items-start mb-2">
-                            <p class="font-bold text-gray-800 text-sm md:text-base">${qa.question}</p>
-                            <span class="bg-${color}-100 text-${color}-800 font-bold px-3 py-1 rounded-full text-sm whitespace-nowrap ml-4">${res.score} / 2</span>
-                        </div>
-                        <p class="text-gray-600 text-sm italic mb-4 border-l-2 border-gray-300 pl-3">"${qa.answer}"</p>
-                        <p class="text-sm text-blue-900 bg-blue-50 p-3 rounded border border-blue-100"><i class="fas fa-robot mr-2 text-blue-500"></i><strong>AI Feedback:</strong> ${res.feedback}</p>
-                    </div>`;
-            });
-            feedbackContainer.appendChild(shortSection);
+  const df = document.getElementById('detailedFeedback');
+  df.innerHTML = '';
 
-            // ---------------------------------------------
-            // Section: Long Answer Feedback
-            // ---------------------------------------------
-            const longSection = document.createElement('div');
-            longSection.innerHTML = `<h4 class="text-xl font-bold text-blue-900 mb-4 mt-10 border-t pt-8"><i class="fas fa-align-left mr-2"></i>Long Answer Feedback</h4>`;
-            gradingData.long_results.forEach(res => {
-                const qa = longAnswers.find(s => s.id === res.id);
-                const color = res.score >= 4 ? 'green' : res.score >= 2 ? 'yellow' : 'red';
-                longSection.innerHTML += `
-                    <div class="bg-white p-5 rounded-xl border border-gray-200 mb-4 shadow-sm">
-                        <div class="flex justify-between items-start mb-2">
-                            <p class="font-bold text-gray-800 text-sm md:text-base">${qa.question}</p>
-                            <span class="bg-${color}-100 text-${color}-800 font-bold px-3 py-1 rounded-full text-sm whitespace-nowrap ml-4">${res.score} / 5</span>
-                        </div>
-                        <p class="text-gray-600 text-sm italic mb-4 border-l-2 border-gray-300 pl-3">"${qa.answer}"</p>
-                        <p class="text-sm text-blue-900 bg-blue-50 p-4 rounded border border-blue-100 leading-relaxed"><i class="fas fa-robot mr-2 text-blue-500"></i><strong>AI Feedback:</strong> ${res.feedback}</p>
-                    </div>`;
-            });
-            feedbackContainer.appendChild(longSection);
+  // Render Detailed MCQ Feedback
+  r.mcqDetails.forEach((m, i) => {
+    const cls = m.isCorrect ? 'correct' : 'wrong';
+    const div = document.createElement('div');
+    div.className = `q-result ${cls}`;
+    
+    let html = `<strong class="q-title">Q${i+1} (Multiple Choice): ${m.text}</strong>`;
+    html += `<div class="student-ans">Your answer: <span class="${m.isCorrect ? 'text-green' : 'text-red'}">${m.chosen}</span></div>`;
+    
+    if(!m.isCorrect) {
+      html += `<div style="margin-bottom: 8px;">Correct answer: <strong>${m.correct}</strong></div>`;
+    }
+    
+    html += `<div class="rationale"><strong>Explanation:</strong> ${m.rationale}</div>`;
+    div.innerHTML = html;
+    df.appendChild(div);
+  });
 
-            // Scroll to top of results
-            resultsSection.scrollIntoView({ behavior: 'smooth' });
-        }
+  // Render Detailed Written Feedback
+  const escapeHTML = str => String(str).replace(/[&<>'"]/g, tag => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[tag] || tag));
+  
+  r.openQs.forEach((q, i) => {
+    // Fallback gracefully
+    const fb = r.qFeedback[q.id] || { score: 0, max: q.marks, feedback: 'AI evaluation skipped this question.' };
+    
+    const isFullMarks = fb.score === fb.max || fb.score === q.marks;
+    const isZero = fb.score === 0;
+    const cls = isFullMarks ? 'correct' : (isZero ? 'wrong' : 'partial');
+    
+    const rawAns = answers[q.id];
+    const studentAns = rawAns ? escapeHTML(rawAns).replace(/\n/g, '<br>') : '<em style="color:var(--gray-mid)">No answer provided</em>';
+    
+    const div = document.createElement('div');
+    div.className = `q-result ${cls}`;
+    
+    let html = `<strong class="q-title">Q${r.mcqDetails.length + i + 1} (${q.type === 'long' ? 'Long Answer' : 'Short Answer'}): ${q.text}</strong>`;
+    html += `<div class="student-ans">Your answer:<br><em>${studentAns}</em></div>`;
+    html += `<div><strong>Score:</strong> ${fb.score} / ${fb.max || q.marks} marks</div>`;
+    html += `<div class="rationale"><strong>Teacher/AI Feedback:</strong> ${fb.feedback}</div>`;
+    html += `<div class="rubric"><strong>Expected Answer/Rubric:</strong> ${q.rubric}</div>`;
+    
+    div.innerHTML = html;
+    df.appendChild(div);
+  });
+}
 
-        // --- Send Data to Google Sheets ---
-        function saveToGoogleSheets(mcq, short, long, total) {
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxSoR989ZUpzAWCCDwgJF0mXLyB9qCcX9az8OO9RAex3sGqrWnQ7n76F8_UGP20DfFl/exec';
-            
-            // Using URLSearchParams ensures it mimics a standard form submission, 
-            // which is easiest for Google Apps Script doPost(e) to parse via e.parameter
-            const formData = new URLSearchParams();
-            formData.append('name', studentName);
-            formData.append('mcq_score', mcq);
-            formData.append('short_score', short);
-            formData.append('long_score', long);
-            formData.append('total_score', total);
+async function logToSheet(r) {
+  const msg = document.getElementById('sheetMsg');
+  msg.textContent = 'Syncing scores with teacher portal...';
+  
+  // Using URLSearchParams ensures it mimics a standard form submission for doPost(e)
+  const formData = new URLSearchParams();
+  formData.append('name', studentName);
+  formData.append('mcq_score', r.mcqScore);
+  formData.append('short_score', r.saScore);
+  formData.append('long_score', r.laScore);
+  formData.append('total_score', r.total);
+  
+  // Add percentage & overall feedback just in case the Apps Script handles it
+  const pct = Math.round((r.total / r.possible) * 100);
+  formData.append('percentage', `${pct}%`);
+  formData.append('feedback', r.overallFeedback);
 
-            // no-cors prevents preflight errors typical with Google Apps Script
-            fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: formData
-            }).then(() => {
-                console.log("Results sent to Google Sheets successfully.");
-            }).catch(error => {
-                console.error("Error sending to Google Sheets:", error);
-            });
-        }
-    </script>
+  try {
+    // Send using POST (compatible with your existing doPost script)
+    await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData
+    });
+    msg.style.color = "var(--green)";
+    msg.textContent = '✓ Scores successfully synced. Your teacher can now view your results.';
+  } catch(e) {
+    msg.style.color = "var(--red)";
+    msg.textContent = '⚠ Network error while syncing to Google Sheets. Your grade is visible above.';
+  }
+}
+</script>
 </body>
 </html>
