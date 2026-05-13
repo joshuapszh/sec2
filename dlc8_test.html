@@ -284,12 +284,6 @@
                 apiError.classList.remove('hidden');
                 return;
             }
-            // Simple validation (starts with AIza)
-            if (!key.startsWith('AIza')) {
-                apiError.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Key appears invalid. It should start with "AIza".';
-                apiError.classList.remove('hidden');
-                return;
-            }
 
             // Accept key and start
             activeApiKey = key;
